@@ -2,11 +2,17 @@
 
 Ce projet est un moteur de recherche d'images avancé combinant des approches de **Machine Learning classique** et de **Deep Learning** pour la recherche d'images unimodale et multimodale. Développé dans le cadre du module *Machine and Deep Learning for Multimedia Retrieval*.
 
-## 📸 Aperçu de l'interface
+## 📸 Résultats de Recherche & Courbes PR
 
-| Vision Transformer (ViT) | Recherche SIFT + PR Curve | Recherche BGR + PR Curve |
-| :---: | :---: | :---: |
-| ![Search ViT](docs/screenshots/capture_VIT.png) | ![Search SIFT](docs/screenshots/capture2-SIFT.png) | ![Search BGR](docs/screenshots/capture1_BGR.png) |
+### 1. Vision Transformer (ViT)
+<img src="docs/screenshots/capture_VIT.png" width="800px">
+
+### 2. SIFT (Descripteur Local)
+<img src="docs/screenshots/capture2-SIFT.png" width="800px">
+
+### 3. Histogramme BGR (Descripteur Couleur)
+<img src="docs/screenshots/capture1_BGR.png" width="800px">
+
 
 
 ---
