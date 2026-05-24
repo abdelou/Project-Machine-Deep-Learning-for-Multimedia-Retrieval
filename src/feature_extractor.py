@@ -30,17 +30,14 @@ class FeatureExtractor(ABC):
                 os.makedirs(output_directory)
         print("Indexing database...")
         for file in tqdm(image_files):
-            if save_features:
-                path = os.path.join(output_directory, file.split("/")[-1].split(".")[0] + ".txt")
-                path = path.replace("\\", "/")
-                if os.path.exists(path):
-                    continue
             img_name = file.split("/")[-1].split("\\")[-1].split(".")[0]
             feature = self.extract_feature(file)
-            path = os.path.join(output_directory, img_name + ".txt")
-            path = path.replace("\\", "/")
             if save_features:
-                np.savetxt(path, feature)
+                path = os.path.join(output_directory, img_name + ".npy")
+                path = path.replace("\\", "/")
+                np.save(path, feature)
+
+
 
     def load_features(self, output_directory):
         """Load the features from the output directory"""
@@ -51,9 +48,11 @@ class FeatureExtractor(ABC):
         files = [os.path.join(output_directory, file).replace("\\", "/") for file in files]
         print("Loading features...")
         for file in tqdm(files):
-            feature = np.loadtxt(file)
-            lfeatures.append((file, feature))
+            if file.endswith(".npy"):
+                feature = np.load(file)
+                lfeatures.append((file, feature))
         return lfeatures
+
 
     @abstractmethod
     def extract_feature(self, image):

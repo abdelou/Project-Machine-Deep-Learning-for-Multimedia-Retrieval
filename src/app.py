@@ -117,8 +117,9 @@ def search_unimodal():
     
     results = []
     for path, feature, dist in voisins:
-        rel_path = os.path.basename(path).replace('.txt', '.jpg')
+        rel_path = os.path.basename(path).replace('.npy', '.jpg')
         results.append({
+
             "path": f"/images/{rel_path}",
             "score": 1.0 / (1.0 + float(dist))
         })
