@@ -2,7 +2,8 @@ import os
 from feature_extractor import Histogram_HSV_Extractor
 
 # Chemin vers le dossier contenant les images
-image_folder = "/Users/tolga/TP3_MIR/ProjetMathieuMohssine/flat_dataset"
+image_folder = "../data/dataset"
+
 output_folder = "features"
 
 # Récupérer tous les fichiers d'images

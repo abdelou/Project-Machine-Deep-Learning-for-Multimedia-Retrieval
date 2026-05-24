@@ -61,4 +61,5 @@ L'interface sera disponible sur : http://127.0.0.1:5001
 ```
 ---
 
-*Projet réalisé par Abdelouahad ALLA - Paul Toussaint - Julien Xu *
+*Projet réalisé dans le cadre du module Machine and Deep Learning for Multimedia Retrieval - 2026*
+

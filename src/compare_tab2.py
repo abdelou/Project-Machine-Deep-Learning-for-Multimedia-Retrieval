@@ -7,7 +7,8 @@ from feature_extractor import Histogram_HSV_Extractor
 from retrieval import extract_class_id
 
 # === CONFIGURATION ===
-DATASET_DIR = "src/flat_dataset"
+DATASET_DIR = "../data/dataset"
+
 DESCRIPTOR = Histogram_HSV_Extractor()
 DISTANCE = "Euclidienne"
 DESCRIPTOR_NAME = "BGR"
