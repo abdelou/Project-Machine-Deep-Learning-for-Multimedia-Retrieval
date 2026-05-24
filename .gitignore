@@ -1,0 +1,14 @@
+data/
+extracted_features/
+outputs/
+__pycache__/
+*.pyc
+.DS_Store
+.env
+src/flat_dataset/
+src/features/
+src/results/
+*.ipynb_checkpoints
+
+
+
