@@ -9,6 +9,8 @@ src/flat_dataset/
 src/features/
 src/results/
 *.ipynb_checkpoints
-
-
-
+venv/
+.agents/
+.agent/
+.system_generated/
+*.log

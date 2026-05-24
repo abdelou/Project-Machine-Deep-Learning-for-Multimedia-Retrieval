@@ -7,13 +7,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #6366f1;
-            --secondary: #a855f7;
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --text: #f1f5f9;
-            --text-muted: #94a3b8;
+            --primary: #55b6a3;
+            --secondary: #7ebda6;
+            --bg: #f2f7f5;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
         }
+
 
         body {
             font-family: 'Outfit', sans-serif;
@@ -67,9 +68,9 @@
             padding: 0.8rem;
             margin-bottom: 1rem;
             border-radius: 0.5rem;
-            border: 1px solid #334155;
-            background: #0f172a;
-            color: white;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: var(--text);
             box-sizing: border-box;
         }
 
@@ -100,8 +101,10 @@
             background: var(--card-bg);
             border-radius: 1rem;
             overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
+
 
         .result-item img {
             width: 100%;
@@ -150,8 +153,21 @@
     </div>
 
     <script>
+        document.getElementById('unimodal-form').onsubmit = async (e) => {
+            e.preventDefault();
+            showLoading();
+            const formData = new FormData(e.target);
+            const response = await fetch('/search_unimodal', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            displayResults(data);
+        };
+
         document.getElementById('multimodal-form').onsubmit = async (e) => {
             e.preventDefault();
+            showLoading();
             const formData = new FormData(e.target);
             const response = await fetch('/search_multimodal', {
                 method: 'POST',
@@ -160,6 +176,11 @@
             const data = await response.json();
             displayResults(data);
         };
+
+        function showLoading() {
+            document.getElementById('results').innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 3rem;">🔍 Searching... Please wait.</div>';
+        }
+
 
         function displayResults(results) {
             const container = document.getElementById('results');
