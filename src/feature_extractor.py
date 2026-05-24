@@ -49,24 +49,25 @@ class FeatureExtractor(ABC):
                 indexed_data[img_name] = feature
         
         if save_features:
-            np.save(index_file, indexed_data)
+            # Use compressed format for the aggregate index
+            np.savez_compressed(index_file, **indexed_data)
+
 
 
 
     def load_features(self, output_directory):
-        """Load all features from the single index file"""
-        index_file = os.path.join(output_directory, self.name, "features_index.npy")
+        """Load all features from the compressed index file"""
+        index_file = os.path.join(output_directory, self.name, "features_index.npz")
         lfeatures = []
         
         if os.path.exists(index_file):
-            print(f"Loading indexed features for {self.name}...")
-            indexed_data = np.load(index_file, allow_pickle=True).item()
-            # Format to (fPath, feature) as expected by the rest of the code
-            for img_name, feature in indexed_data.items():
-                # We reconstruct the full path for consistency
-                full_path = os.path.join("data/dataset", img_name)
-                lfeatures.append((full_path, feature))
+            print(f"Loading compressed features for {self.name}...")
+            with np.load(index_file, allow_pickle=True) as data:
+                for img_name in data.files:
+                    full_path = os.path.join("data/dataset", img_name)
+                    lfeatures.append((full_path, data[img_name]))
         return lfeatures
+
 
 
     @abstractmethod
@@ -110,8 +111,13 @@ class SIFT_Extractor(FeatureExtractor):
 
     def extract_feature(self, file):
         image = cv2.imread(file)
-        sift = cv2.SIFT_create()  
+        if image is None: return None
+        # Limit features to 200 to save space (Standard for MIR lab)
+        sift = cv2.SIFT_create(nfeatures=200)  
         _ , des = sift.detectAndCompute(image,None)
+        if des is not None:
+            # Quantize to uint8 (0-255) to save 4x space
+            des = des.astype(np.uint8)
         return des
 
 class ORB_Extractor(FeatureExtractor):
@@ -122,9 +128,14 @@ class ORB_Extractor(FeatureExtractor):
 
     def extract_feature(self, file):
         image = cv2.imread(file)
-        orb = cv2.ORB_create()
+        if image is None: return None
+        # Limit to 200 features
+        orb = cv2.ORB_create(nfeatures=200)
         _ , des = orb.detectAndCompute(image,None)
+        if des is not None:
+            des = des.astype(np.uint8)
         return des
+
     
 class GLCM_Extractor(FeatureExtractor):
     """Extract GLCM features from an image"""
