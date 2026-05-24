@@ -2,6 +2,12 @@
 
 Ce projet est un moteur de recherche d'images avancé combinant des approches de **Machine Learning classique** et de **Deep Learning** pour la recherche d'images unimodale et multimodale. Développé dans le cadre du module *Machine and Deep Learning for Multimedia Retrieval*.
 
+## 📸 Aperçu de l'interface
+
+| Interface Web (Opaline Theme) | Terminal & Indexation |
+| :---: | :---: |
+| ![Interface Web](docs/screenshots/index_opaline.png) | ![Terminal](docs/screenshots/terminal_app.png) |
+
 ---
 
 ## 🚀 Fonctionnalités Clés
@@ -54,8 +60,9 @@ pip install -r requirements/requirements.txt
 
 ### 3. Lancement de l'interface Web
 ```bash
-python src/app.py
+python3 src/app.py
 ```
+
 ```
 L'interface sera disponible sur : http://127.0.0.1:5001
 ```
