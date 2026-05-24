@@ -2,21 +2,21 @@
 
 Ce projet est un moteur de recherche d'images avancé combinant des approches de **Machine Learning classique** et de **Deep Learning** pour la recherche d'images unimodale et multimodale. Développé dans le cadre du module *Machine and Deep Learning for Multimedia Retrieval*.
 
-## 📸 Aperçu de l'interface
-
-| Interface Web (Opaline Theme) | Terminal & Indexation |
-| :---: | :---: |
-| ![Interface Web](docs/screenshots/index_opaline.png) | ![Terminal](docs/screenshots/terminal_app.png) |
+| Interface Unimodale (ViT) | Recherche SIFT + Courbe PR | Recherche BGR + Courbe PR |
+| :---: | :---: | :---: |
+| ![Search ViT](docs/screenshots/vit_search.png) | ![Search SIFT](docs/screenshots/sift_search.png) | ![Search BGR](docs/screenshots/bgr_search.png) |
 
 ---
 
-## 🚀 Fonctionnalités Clés
+## 🚀 Fonctionnalités Clés (Alignement TP3)
 
 ### 1. 🔍 Recherche d'Images Unimodale (Image-to-Image)
-Recherche basée sur le contenu visuel d'une image requête effectuée sur une base de données de 10 000 images ("Cars" dataset).
-*   **Descripteurs Classiques** : SIFT, SURF, ORB, HOG, LBP, GLCM et Histogrammes de couleur (HSV/RGB).
-*   **Deep Learning (CNN & ViT)** : Modèles pré-entraînés et fine-tunés : **ResNet34**, **InceptionV4** et **Vision Transformer (ViT)**.
-*   **Fusion de Descripteurs** : Possibilité de fusionner plusieurs descripteurs pour améliorer la pertinence des résultats.
+Recherche basée sur le contenu visuel avec support multi-critères :
+*   **Sélecteur de Descripteurs** : Choix dynamique parmi 8 descripteurs (**ViT, BGR, HSV, SIFT, ORB, LBP, GLCM, HOG**).
+*   **Sélecteur de Distances** : Support de plusieurs métriques (**Euclidienne, Brute Force, Flann, Correlation, Intersection, Bhattacharyya, Chi-square**).
+*   **Courbes Rappel/Précision (PR Curves)** : Génération automatique et affichage dynamique d'une courbe PR pour chaque recherche afin d'évaluer la pertinence.
+*   **Optimisation de l'Index** : Système d'indexation binaire agrégée (`.npy`) pour gérer les 10 000 images de manière fluide et économe en espace disque.
+
 
 ### 2. 🌐 Recherche Multimodale (Text-to-Image & Inverse)
 Exploitation du dataset **Flickr8k** pour une recherche croisée texte/image.
