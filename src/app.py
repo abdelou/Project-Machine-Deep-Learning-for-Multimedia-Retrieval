@@ -3,18 +3,64 @@ from flask import Flask, render_template, request, jsonify, send_from_directory
 import os
 import cv2
 import numpy as np
-from feature_extractor import ViT_Extractor, ResNet34_ImageNet_Extractor
+from feature_extractor import *
 from multimodal_retrieval import MultimodalEngine
-from retrieval import getkVoisins
+from retrieval import getkVoisins, extract_class_id
 import base64
+import matplotlib.pyplot as plt
+import io
+
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Initialize engines
-unimodal_extractor = ViT_Extractor()
+extractors = {
+    "ViT": ViT_Extractor(),
+    "BGR": Histogram_Color_Extractor(),
+    "HSV": Histogram_HSV_Extractor(),
+    "SIFT": SIFT_Extractor(),
+    "ORB": ORB_Extractor(),
+    "LBP": LBP_Extractor(),
+    "GLCM": GLCM_Extractor(),
+    "HOG": HOG_Extractor()
+}
 multimodal_engine = MultimodalEngine()
+
+def generate_pr_curve_base64(retrieved_paths, query_path):
+    query_class = extract_class_id(query_path)
+    relevant_count = 0
+    precisions = []
+    recalls = []
+    
+    # In a real scenario, we need the total number of relevant items in the DB
+    # For WANG/Dataset, let's assume classes are 100 images each or count them
+    total_relevant = 100 # Default for WANG, or we could scan DATA_DIR
+    
+    for i, path in enumerate(retrieved_paths):
+        if extract_class_id(path) == query_class:
+            relevant_count += 1
+        precisions.append(relevant_count / (i + 1))
+        recalls.append(relevant_count / total_relevant)
+    
+    plt.figure(figsize=(5, 4))
+    plt.plot(recalls, precisions, marker='.', color='#55b6a3')
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.title('Recall-Precision Curve')
+    plt.ylim([0, 1.05])
+    plt.xlim([0, 1.05])
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    
+    img_buf = io.BytesIO()
+    plt.savefig(img_buf, format='png', dpi=100)
+    img_buf.seek(0)
+    img_base64 = base64.b64encode(img_buf.read()).decode('utf-8')
+    plt.close()
+    return img_base64
+
 # Paths
 DATA_DIR = os.path.abspath('data/dataset')
 FEATURES_DIR = os.path.abspath('extracted_features')
@@ -41,41 +87,47 @@ def search_unimodal():
     if 'image' not in request.files:
         return jsonify({"error": "No image uploaded"}), 400
     
+    descriptor_name = request.form.get('descriptor', 'ViT')
+    extractor = extractors.get(descriptor_name, extractors['ViT'])
+    
     file = request.files['image']
     img_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(img_path)
     
     # 1. Extract feature from query image
-    query_feature = unimodal_extractor.extract_feature(img_path)
+    query_feature = extractor.extract_feature(img_path)
     
-    # 2. Load indexed features (ensure they are indexed first)
-    # If not indexed, this might fail or be empty. 
-    # For a robust app, we'd ensure indexing at start.
-    if not os.path.exists(os.path.join(FEATURES_DIR, unimodal_extractor.name)):
-        # Optional: Auto-index if few images, or return error
+    # 2. Indexing check (simplified for web)
+    # We use a dedicated folder for each descriptor
+    desc_features_dir = os.path.join(FEATURES_DIR, extractor.name)
+    if not os.path.exists(desc_features_dir) or not os.listdir(desc_features_dir):
         files = [os.path.join(DATA_DIR, f) for f in os.listdir(DATA_DIR) if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
         if not files:
             return jsonify({"error": "Database is empty. Please add images to data/dataset/"}), 404
-        unimodal_extractor.index_database(files, FEATURES_DIR)
+        extractor.index_database(files, FEATURES_DIR)
 
-    database_features = unimodal_extractor.load_features(FEATURES_DIR)
+    database_features = extractor.load_features(FEATURES_DIR)
     
     # 3. Get Top K Neighbors
-    voisins = getkVoisins(database_features, query_feature, k=16, distanceName="Euclidienne")
+    voisins = getkVoisins(database_features, query_feature, k=20, distanceName="Euclidienne")
     
-    # 4. Format results
+    # 4. Format results & Generate PR Curve
+    retrieved_image_paths = [v[0] for v in voisins]
+    pr_curve = generate_pr_curve_base64(retrieved_image_paths, img_path)
+    
     results = []
     for path, feature, dist in voisins:
-
-        # Construct URL to served image
         rel_path = os.path.basename(path).replace('.txt', '.jpg')
         results.append({
             "path": f"/images/{rel_path}",
-            "score": 1.0 / (1.0 + float(dist)) # Convert distance to a similarity score
+            "score": 1.0 / (1.0 + float(dist))
         })
-
     
-    return jsonify(results)
+    return jsonify({
+        "results": results,
+        "pr_curve": pr_curve
+    })
+
 
 
 @app.route('/search_multimodal', methods=['POST'])

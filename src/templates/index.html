@@ -63,7 +63,7 @@
 
         h2 { color: var(--primary); margin-bottom: 1.5rem; }
 
-        input[type="text"], input[type="file"] {
+        input[type="text"], input[type="file"], select {
             width: 100%;
             padding: 0.8rem;
             margin-bottom: 1rem;
@@ -72,7 +72,9 @@
             background: #ffffff;
             color: var(--text);
             box-sizing: border-box;
+            font-family: inherit;
         }
+
 
         button {
             width: 100%;
@@ -88,14 +90,37 @@
 
         button:hover { background: var(--secondary); }
 
-        #results {
+        #results-container {
             margin-top: 3rem;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        #curve-container {
+            display: none;
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        #curve-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+        }
+
+        #results {
             width: 100%;
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 1.5rem;
             padding-bottom: 3rem;
         }
+
 
         .result-item {
             background: var(--card-bg);
@@ -132,9 +157,21 @@
                 <h2>Unimodal Search</h2>
                 <p class="text-muted">Query by image using Deep Learning descriptors.</p>
                 <form id="unimodal-form">
+                    <label class="text-muted" style="font-size: 0.8rem;">Select Descriptor:</label>
+                    <select name="descriptor" id="descriptor-select">
+                        <option value="ViT">Vision Transformer (ViT)</option>
+                        <option value="BGR">Histogram BGR</option>
+                        <option value="HSV">Histogram HSV</option>
+                        <option value="SIFT">SIFT</option>
+                        <option value="ORB">ORB</option>
+                        <option value="LBP">LBP</option>
+                        <option value="GLCM">GLCM</option>
+                        <option value="HOG">HOG</option>
+                    </select>
                     <input type="file" name="image" accept="image/*" required>
                     <button type="submit">SEARCH IMAGES</button>
                 </form>
+
             </div>
 
             <div class="card">
@@ -147,9 +184,16 @@
             </div>
         </div>
 
-        <div id="results">
-            <!-- Results will be injected here -->
+        <div id="results-container">
+            <div id="curve-container">
+                <h3>Recall-Precision Curve</h3>
+                <img id="pr-curve" src="" alt="PR Curve">
+            </div>
+            <div id="results">
+                <!-- Results will be injected here -->
+            </div>
         </div>
+
     </div>
 
     <script>
@@ -182,9 +226,34 @@
         }
 
 
-        function displayResults(results) {
+        function displayResults(data) {
             const container = document.getElementById('results');
+            const curveContainer = document.getElementById('curve-container');
+            const prCurveImg = document.getElementById('pr-curve');
+            
             container.innerHTML = '';
+            
+            // Handle error response
+            if (data.error) {
+                container.innerHTML = `<div style="grid-column: 1/-1; color: #ef4444; text-align: center; padding: 2rem;">❌ ${data.error}</div>`;
+                curveContainer.style.display = 'none';
+                return;
+            }
+
+            // Display PR Curve if available
+            if (data.pr_curve) {
+                prCurveImg.src = `data:image/png;base64,${data.pr_curve}`;
+                curveContainer.style.display = 'block';
+            } else {
+                curveContainer.style.display = 'none';
+            }
+
+            const results = data.results || data;
+            if (results.length === 0) {
+                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 2rem;">No results found.</div>';
+                return;
+            }
+
             results.forEach(res => {
                 const item = document.createElement('div');
                 item.className = 'result-item';
@@ -192,12 +261,13 @@
                     <img src="${res.path}" alt="result">
                     <div class="result-info">
                         <div class="score">Score: ${res.score.toFixed(4)}</div>
-                        <div style="font-size: 0.7rem; color: #94a3b8;">${res.path.split('/').pop()}</div>
+                        <div style="font-size: 0.7rem; color: #64748b;">${res.path.split('/').pop()}</div>
                     </div>
                 `;
                 container.appendChild(item);
             });
         }
+
     </script>
 </body>
 </html>

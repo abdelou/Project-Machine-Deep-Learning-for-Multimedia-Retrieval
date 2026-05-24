@@ -32,7 +32,8 @@ images = [os.path.join(DATASET_DIR, f) for f in os.listdir(DATASET_DIR) if f.low
 
 # === Indexation ===
 print(f"📥 Indexation des descripteurs {DESCRIPTOR_NAME}...")
-DESCRIPTOR.index_database(images, "./descriptors", save_files=True)
+DESCRIPTOR.index_database(images, "./descriptors", save_features=True)
+
 features = DESCRIPTOR.load_features("./descriptors")
 
 # === Évaluation ===
