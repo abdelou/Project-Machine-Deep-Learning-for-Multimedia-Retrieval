@@ -106,7 +106,8 @@ def search_unimodal():
     
     # 2. Indexing check (simplified for web)
     desc_features_dir = os.path.join(FEATURES_DIR, extractor.name)
-    if not os.path.exists(os.path.join(desc_features_dir, "features_index.npz")):
+    if not os.path.exists(os.path.join(desc_features_dir, "features_index.npy")):
+
         files = [os.path.join(DATA_DIR, f) for f in os.listdir(DATA_DIR) if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
         if not files:
             return jsonify({"error": "Database is empty. Please add images to data/dataset/"}), 404

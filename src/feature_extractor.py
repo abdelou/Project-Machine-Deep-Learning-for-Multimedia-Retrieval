@@ -49,12 +49,11 @@ class FeatureExtractor(ABC):
                 indexed_data[img_name] = feature
         
         if save_features:
-            # Use compressed format for the aggregate index
             try:
-                np.savez_compressed(index_file, **indexed_data)
+                # Store as a single object to avoid keyword limits for 10k items
+                np.save(index_file, indexed_data)
             except Exception as e:
                 print(f"FAILED to save index for {self.name}: {str(e)}")
-                # Ensure half-written file is removed
                 if os.path.exists(index_file):
                     os.remove(index_file)
                 raise e
@@ -63,18 +62,23 @@ class FeatureExtractor(ABC):
 
 
 
+
     def load_features(self, output_directory):
-        """Load all features from the compressed index file"""
-        index_file = os.path.join(output_directory, self.name, "features_index.npz")
+        """Load all features from the aggregate index file"""
+        index_file = os.path.join(output_directory, self.name, "features_index.npy")
         lfeatures = []
         
         if os.path.exists(index_file):
-            print(f"Loading compressed features for {self.name}...")
-            with np.load(index_file, allow_pickle=True) as data:
-                for img_name in data.files:
+            print(f"Loading indexed features for {self.name}...")
+            try:
+                indexed_data = np.load(index_file, allow_pickle=True).item()
+                for img_name, feature in indexed_data.items():
                     full_path = os.path.join("data/dataset", img_name)
-                    lfeatures.append((full_path, data[img_name]))
+                    lfeatures.append((full_path, feature))
+            except Exception as e:
+                print(f"Error loading index {index_file}: {e}")
         return lfeatures
+
 
 
 
