@@ -46,7 +46,7 @@ def generate_pr_curve_base64(retrieved_paths, query_path):
         precisions.append(relevant_count / (i + 1))
         recalls.append(relevant_count / total_relevant)
     
-    plt.figure(figsize=(5, 4))
+    plt.figure(figsize=(9, 7))
     plt.plot(recalls, precisions, marker='.', color='#55b6a3')
     plt.xlabel('Recall')
     plt.ylabel('Precision')
