@@ -4,9 +4,10 @@ Ce projet est un moteur de recherche d'images avancé combinant des approches de
 
 ## 📸 Aperçu de l'interface
 
-| Vision Transformer (ViT) | Recherche SIFT + PR Curve | Indexation & Stockage |
+| Vision Transformer (ViT) | Recherche SIFT + PR Curve | Recherche BGR + PR Curve |
 | :---: | :---: | :---: |
-| ![Interface Web](docs/screenshots/index_opaline.png) | ![Search SIFT](docs/screenshots/sift_search.png) | ![Terminal](docs/screenshots/terminal_app.png) |
+| ![Search ViT](docs/screenshots/capture_VIT.png) | ![Search SIFT](docs/screenshots/capture2-SIFT.png) | ![Search BGR](docs/screenshots/capture1_BGR.png) |
+
 
 ---
 
