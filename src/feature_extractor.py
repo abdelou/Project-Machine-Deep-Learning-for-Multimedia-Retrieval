@@ -23,34 +23,49 @@ class FeatureExtractor(ABC):
         self.name = name
 
     def index_database(self, image_files, output_directory, save_features=True):
-        """Index the database and save the features in the output directory"""
-        output_directory = output_directory + "/" + self.name
-        if save_features:
-            if not os.path.exists(output_directory):
-                os.makedirs(output_directory)
-        print("Indexing database...")
+        """Index the database and save all features in a SINGLE file for performance"""
+        desc_dir = os.path.join(output_directory, self.name)
+        if not os.path.exists(desc_dir):
+            os.makedirs(desc_dir)
+            
+        index_file = os.path.join(desc_dir, "features_index.npy")
+        
+        # Load existing index if it exists to avoid re-calculating everything
+        indexed_data = {}
+        if os.path.exists(index_file):
+            try:
+                indexed_data = np.load(index_file, allow_pickle=True).item()
+            except:
+                indexed_data = {}
+
+        print(f"Indexing database for {self.name}...")
         for file in tqdm(image_files):
-            img_name = file.split("/")[-1].split("\\")[-1].split(".")[0]
+            img_name = os.path.basename(file)
+            if img_name in indexed_data:
+                continue
+                
             feature = self.extract_feature(file)
-            if save_features:
-                path = os.path.join(output_directory, img_name + ".npy")
-                path = path.replace("\\", "/")
-                np.save(path, feature)
+            if feature is not None:
+                indexed_data[img_name] = feature
+        
+        if save_features:
+            np.save(index_file, indexed_data)
 
 
 
     def load_features(self, output_directory):
-        """Load the features from the output directory"""
-        output_directory = os.path.join(output_directory, self.name)
-        output_directory = output_directory.replace("\\", "/")
+        """Load all features from the single index file"""
+        index_file = os.path.join(output_directory, self.name, "features_index.npy")
         lfeatures = []
-        files = os.listdir(output_directory)
-        files = [os.path.join(output_directory, file).replace("\\", "/") for file in files]
-        print("Loading features...")
-        for file in tqdm(files):
-            if file.endswith(".npy"):
-                feature = np.load(file)
-                lfeatures.append((file, feature))
+        
+        if os.path.exists(index_file):
+            print(f"Loading indexed features for {self.name}...")
+            indexed_data = np.load(index_file, allow_pickle=True).item()
+            # Format to (fPath, feature) as expected by the rest of the code
+            for img_name, feature in indexed_data.items():
+                # We reconstruct the full path for consistency
+                full_path = os.path.join("data/dataset", img_name)
+                lfeatures.append((full_path, feature))
         return lfeatures
 
 
