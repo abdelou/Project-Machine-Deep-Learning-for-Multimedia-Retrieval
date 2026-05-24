@@ -7,6 +7,8 @@ from feature_extractor import *
 from multimodal_retrieval import MultimodalEngine
 from retrieval import getkVoisins, extract_class_id
 import base64
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import io
 
