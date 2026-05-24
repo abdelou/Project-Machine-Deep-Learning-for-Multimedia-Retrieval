@@ -61,4 +61,4 @@ L'interface sera disponible sur : http://127.0.0.1:5001
 ```
 ---
 
-*Projet réalisé par Abdelouahad - 2026*
+*Projet réalisé par Abdelouahad ALLA - Paul Toussaint - Julien Xu *
