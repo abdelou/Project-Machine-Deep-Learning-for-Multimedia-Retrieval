@@ -2,9 +2,16 @@
 
 Ce projet est un moteur de recherche d'images avancé combinant des approches de **Machine Learning classique** et de **Deep Learning** pour la recherche d'images unimodale et multimodale. Développé dans le cadre du module *Machine and Deep Learning for Multimedia Retrieval*.
 
+## 📸 Aperçu de l'interface
+
+| Vision Transformer (ViT) | Recherche SIFT + PR Curve | Indexation & Stockage |
+| :---: | :---: | :---: |
+| ![Interface Web](docs/screenshots/index_opaline.png) | ![Search SIFT](docs/screenshots/sift_search.png) | ![Terminal](docs/screenshots/terminal_app.png) |
+
 ---
 
 ## 🚀 Fonctionnalités Clés (Alignement TP3)
+
 
 
 ### 1. 🔍 Recherche d'Images Unimodale (Image-to-Image)
