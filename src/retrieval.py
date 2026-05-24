@@ -31,9 +31,10 @@ def getkVoisins(lfeatures, req, k, distanceName) :
     ldistances.sort(key=operator.itemgetter(2),reverse=ordre) 
 
     lvoisins = [] 
-    for i in range(k): 
+    for i in range(min(k, len(ldistances))): 
         lvoisins.append(ldistances[i]) 
     return lvoisins
+
 
 def extract_class_id(image_name, brand_only = False):
     """

@@ -88,9 +88,16 @@ def search_unimodal():
         return jsonify({"error": "No image uploaded"}), 400
     
     descriptor_name = request.form.get('descriptor', 'ViT')
+    distance_name = request.form.get('distance', 'Euclidienne')
     extractor = extractors.get(descriptor_name, extractors['ViT'])
     
+    # Auto-adjust distance for SIFT/ORB if user forgot
+    if descriptor_name in ["SIFT", "ORB"] and distance_name not in ["Brute force", "Flann"]:
+        distance_name = "Brute force"
+    
     file = request.files['image']
+    # ...
+    # (reusing existing code below)
     img_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(img_path)
     
@@ -98,18 +105,21 @@ def search_unimodal():
     query_feature = extractor.extract_feature(img_path)
     
     # 2. Indexing check (simplified for web)
-    # We use a dedicated folder for each descriptor
     desc_features_dir = os.path.join(FEATURES_DIR, extractor.name)
-    if not os.path.exists(desc_features_dir) or not os.listdir(desc_features_dir):
+    if not os.path.exists(os.path.join(desc_features_dir, "features_index.npz")):
         files = [os.path.join(DATA_DIR, f) for f in os.listdir(DATA_DIR) if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
         if not files:
             return jsonify({"error": "Database is empty. Please add images to data/dataset/"}), 404
         extractor.index_database(files, FEATURES_DIR)
 
     database_features = extractor.load_features(FEATURES_DIR)
+    if not database_features:
+        return jsonify({"error": f"Failed to load index for {descriptor_name}. It might be empty or corrupted due to lack of disk space."}), 500
     
     # 3. Get Top K Neighbors
-    voisins = getkVoisins(database_features, query_feature, k=20, distanceName="Euclidienne")
+    voisins = getkVoisins(database_features, query_feature, k=20, distanceName=distance_name)
+
+
     
     # 4. Format results & Generate PR Curve
     retrieved_image_paths = [v[0] for v in voisins]

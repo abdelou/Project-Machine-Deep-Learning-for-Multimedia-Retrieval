@@ -41,13 +41,28 @@ def flann(a,b):
     return np.mean(matches)
 
 def bruteForceMatching(a, b):
-    a = np.array(a).astype('uint8')
-    b = np.array(b).astype('uint8')
-    if a.shape[0]==0 or b.shape[0]==0:
-        return np.inf
-    bf = cv2.BFMatcher(cv2.NORM_HAMMING)
-    matches = list(map(lambda x: x.distance, bf.match(a, b)))
-    return np.mean(matches)
+    if a is None or b is None or len(a) == 0 or len(b) == 0:
+        return 1e9
+        
+    # SIFT defaults to float32 and L2, ORB defaults to uint8 and Hamming
+    # However, I quantized everything to uint8 to save space
+    # So we use HAMMING if they are uint8 (ORB) or L2 if they are float.
+    # Actually, SIFT quantized to uint8 still works better with L2 or L1.
+    
+    # Simple heuristic: if descriptor dim is 128, it's likely SIFT. if 32, it's ORB.
+    norm = cv2.NORM_L2
+    if a.shape[1] == 32: # ORB dim
+        norm = cv2.NORM_HAMMING
+        
+    bf = cv2.BFMatcher(norm)
+    try:
+        matches = bf.match(a, b)
+        if not matches: return 1e9
+        dist_vals = [m.distance for m in matches]
+        return np.mean(dist_vals)
+    except:
+        return 1e9
+
 
 def distance_f(l1,l2,distanceName):
     if distanceName=="Euclidienne":

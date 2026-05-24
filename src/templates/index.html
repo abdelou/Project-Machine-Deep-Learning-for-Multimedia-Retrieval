@@ -168,6 +168,18 @@
                         <option value="GLCM">GLCM</option>
                         <option value="HOG">HOG</option>
                     </select>
+
+                    <label class="text-muted" style="font-size: 0.8rem;">Select Distance:</label>
+                    <select name="distance" id="distance-select">
+                        <option value="Euclidienne">Euclidienne</option>
+                        <option value="Brute force">Brute force (SIFT/ORB)</option>
+                        <option value="Flann">Flann (SIFT/ORB)</option>
+                        <option value="Correlation">Correlation</option>
+                        <option value="Bhattacharyya">Bhattacharyya</option>
+                        <option value="Intersection">Intersection</option>
+                        <option value="Chicarre">Chi-square</option>
+                    </select>
+
                     <input type="file" name="image" accept="image/*" required>
                     <button type="submit">SEARCH IMAGES</button>
                 </form>

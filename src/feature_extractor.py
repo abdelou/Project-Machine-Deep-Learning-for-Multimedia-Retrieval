@@ -50,7 +50,15 @@ class FeatureExtractor(ABC):
         
         if save_features:
             # Use compressed format for the aggregate index
-            np.savez_compressed(index_file, **indexed_data)
+            try:
+                np.savez_compressed(index_file, **indexed_data)
+            except Exception as e:
+                print(f"FAILED to save index for {self.name}: {str(e)}")
+                # Ensure half-written file is removed
+                if os.path.exists(index_file):
+                    os.remove(index_file)
+                raise e
+
 
 
 
