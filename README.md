@@ -41,9 +41,24 @@ Exploitation du dataset **Flickr8k** pour une recherche croisée texte/image.
 
 ## 📦 Installation & Utilisation
 
-### 1. Cloner le projet 
+### 1. Cloner le projet
 ```bash
 git clone https://github.com/abdelou/Project-Machine-Deep-Learning-for-Multimedia-Retrieval.git
 cd Project-Machine-Deep-Learning-for-Multimedia-Retrieval
-Installer les dépendances :  pip install -r requirements/requirements.txt
-Lancer l'interface Web : python src/app.py
+```
+
+### 2. Installer les dépendances
+```bash
+pip install -r requirements/requirements.txt
+```
+
+### 3. Lancement de l'interface Web
+```bash
+python src/app.py
+```
+```
+L'interface sera disponible sur : http://127.0.0.1:5001
+```
+---
+
+*Projet réalisé par Abdelouahad ALLA - Paul Toussaint - Julien Xu *
