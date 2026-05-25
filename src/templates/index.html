@@ -3,288 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MIR Image Retrieval Engine</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>MainWindow - MIR Engine</title>
     <style>
         :root {
-            --primary: #55b6a3;
-            --secondary: #7ebda6;
-            --bg: #f2f7f5;
-            --card-bg: #ffffff;
-            --text: #1e293b;
-            --text-muted: #64748b;
+            --bg: #f0f0f0;
+            --border: #808080;
+            --box-bg: #e0e0e0;
+            --text: #000000;
         }
 
-
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: "MS Sans Serif", "Tahoma", sans-serif;
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
-            padding: 0;
+            padding: 10px;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+            gap: 10px;
         }
 
-        header {
-            width: 100%;
-            padding: 2rem;
-            text-align: center;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        .window-title {
+            background-color: #000080;
+            color: white;
+            padding: 3px 5px;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
         }
 
-        h1 { margin: 0; font-weight: 600; letter-spacing: 1px; }
-
-        .container {
-            width: 90%;
-            max-width: 1000px;
-            margin-top: 3rem;
+        .top-row {
+            display: flex;
+            gap: 10px;
         }
 
-        .search-sections {
+        fieldset {
+            border: 2px groove #fff;
+            padding: 10px;
+            margin: 0;
+        }
+
+        legend {
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .request-box { width: 100px; text-align: center; }
+        .descriptor-box { flex: 1; }
+        .search-box { flex: 2; }
+        .rp_box { width: 150px; }
+
+        .descriptor-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            font-size: 12px;
         }
 
-        .card {
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            transition: transform 0.3s ease;
-            border: 1px solid rgba(255,255,255,0.05);
+        .search-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            height: 100%;
         }
 
-        .card:hover { transform: translateY(-5px); }
-
-        h2 { color: var(--primary); margin-bottom: 1.5rem; }
-
-        input[type="text"], input[type="file"], select {
-            width: 100%;
-            padding: 0.8rem;
-            margin-bottom: 1rem;
-            border-radius: 0.5rem;
-            border: 1px solid #cbd5e1;
-            background: #ffffff;
-            color: var(--text);
-            box-sizing: border-box;
+        button {
+            background: #d4d0c8;
+            border: 2px outset #fff;
+            padding: 5px 10px;
+            cursor: pointer;
             font-family: inherit;
         }
 
+        button:active { border: 2px inset #fff; }
 
-        button {
-            width: 100%;
-            padding: 1rem;
-            border: none;
-            border-radius: 0.5rem;
-            background: var(--primary);
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
+        .load-btn { width: 80px; height: 60px; font-weight: bold; }
 
-        button:hover { background: var(--secondary); }
+        select { padding: 3px; }
 
-        #results-container {
-            margin-top: 3rem;
-            width: 100%;
+        .titles-bar {
             display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-
-        #curve-container {
-            display: none;
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 1.5rem;
+            font-weight: bold;
             text-align: center;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            width: 100%;
-            box-sizing: border-box;
-        }
- 
-        #curve-container img {
-            width: 100%;
-            max-width: 800px;
-            height: auto;
-            border-radius: 0.5rem;
+            background: #d4d0c8;
+            border: 1px solid var(--border);
+            padding: 2px;
         }
 
-
-        #results {
-            width: 100%;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1.5rem;
-            padding-bottom: 3rem;
+        .main-display {
+            display: flex;
+            gap: 10px;
+            height: 400px;
         }
 
-
-        .result-item {
-            background: var(--card-bg);
-            border-radius: 1rem;
-            overflow: hidden;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        .display-column {
+            border: 1px solid var(--border);
+            background: #fff;
+            overflow-y: auto;
+            position: relative;
         }
 
+        .request-image { width: 250px; display: flex; align-items: center; justify-content: center; }
+        .results-grid { flex: 3; display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 5px; padding: 10px; }
+        .rp-curve { width: 300px; display: flex; align-items: center; justify-content: center; }
 
-        .result-item img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
+        .request-image img, .rp-curve img { max-width: 95%; max-height: 95%; }
+
+        .result-item img { width: 100%; height: auto; border: 1px solid #ccc; }
+
+        .footer {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid var(--border);
+            padding: 5px;
+            background: #d4d0c8;
         }
 
-        .result-info {
-            padding: 0.8rem;
-            font-size: 0.9rem;
-        }
+        progress { flex: 1; height: 20px; }
 
-        .score { color: var(--secondary); font-weight: bold; }
+        .quit-btn { width: 100px; }
+
+        label { font-size: 12px; }
     </style>
 </head>
 <body>
-    <header>
-        <h1>MIR SEARCH ENGINE</h1>
-        <p>Premium Machine & Deep Learning Retrieval</p>
-    </header>
-
-    <div class="container">
-        <div class="search-sections">
-            <div class="card">
-                <h2>Unimodal Search</h2>
-                <p class="text-muted">Query by image using Deep Learning descriptors.</p>
-                <form id="unimodal-form">
-                    <label class="text-muted" style="font-size: 0.8rem;">Select Descriptor:</label>
-                    <select name="descriptor" id="descriptor-select">
-                        <option value="ViT">Vision Transformer (ViT)</option>
-                        <option value="BGR">Histogram BGR</option>
-                        <option value="HSV">Histogram HSV</option>
-                        <option value="SIFT">SIFT</option>
-                        <option value="ORB">ORB</option>
-                        <option value="LBP">LBP</option>
-                        <option value="GLCM">GLCM</option>
-                        <option value="HOG">HOG</option>
-                    </select>
-
-                    <label class="text-muted" style="font-size: 0.8rem;">Select Distance:</label>
-                    <select name="distance" id="distance-select">
-                        <option value="Euclidienne">Euclidienne</option>
-                        <option value="Brute force">Brute force (SIFT/ORB)</option>
-                        <option value="Flann">Flann (SIFT/ORB)</option>
-                        <option value="Correlation">Correlation</option>
-                        <option value="Bhattacharyya">Bhattacharyya</option>
-                        <option value="Intersection">Intersection</option>
-                        <option value="Chicarre">Chi-square</option>
-                    </select>
-
-                    <input type="file" name="image" accept="image/*" required>
-                    <button type="submit">SEARCH IMAGES</button>
-                </form>
-
-            </div>
-
-            <div class="card">
-                <h2>Multimodal Search</h2>
-                <p class="text-muted">Search using text queries (CLIP + FAISS).</p>
-                <form id="multimodal-form">
-                    <input type="text" name="query" placeholder="e.g. 'a red car in a park'" required>
-                    <button type="submit">SEARCH BY TEXT</button>
-                </form>
-            </div>
-        </div>
-
-        <div id="results-container">
-            <div id="curve-container">
-                <h3>Recall-Precision Curve</h3>
-                <img id="pr-curve" src="" alt="PR Curve">
-            </div>
-            <div id="results">
-                <!-- Results will be injected here -->
-            </div>
-        </div>
-
+    <div class="window-title">
+        <span>MainWindow</span>
+        <span>X</span>
     </div>
 
+    <form id="mir-form">
+        <div class="top-row">
+            <fieldset class="request-box">
+                <legend>Request</legend>
+                <input type="file" id="image-input" name="image" style="display:none" accept="image/*">
+                <button type="button" class="load-btn" onclick="document.getElementById('image-input').click()">Load</button>
+            </fieldset>
+
+            <fieldset class="descriptor-box">
+                <legend>Choice of descriptor</legend>
+                <div class="descriptor-grid">
+                    <label><input type="checkbox" name="descriptor" value="BGR"> BGR</label>
+                    <label><input type="checkbox" name="descriptor" value="HSV"> HSV</label>
+                    <label><input type="checkbox" name="descriptor" value="HOG"> HOG</label>
+                    <label><input type="checkbox" name="descriptor" value="SIFT"> SIFT</label>
+                    <label><input type="checkbox" name="descriptor" value="ORB"> ORB</label>
+                    <label><input type="checkbox" name="descriptor" value="Mom"> Mom.</label>
+                    <label><input type="checkbox" name="descriptor" value="LBP"> LBP</label>
+                    <label><input type="checkbox" name="descriptor" value="GLCM"> GLCM</label>
+                    <label><input type="checkbox" name="descriptor" value="ViT" checked> ViT</label>
+                </div>
+            </fieldset>
+
+            <fieldset class="search-box">
+                <legend>Search</legend>
+                <div class="search-controls">
+                    <button type="button">Load descriptors</button>
+                    <label>Distance :</label>
+                    <select name="distance">
+                        <option value="Euclidienne">Euclidienne</option>
+                        <option value="Chicarre">Chi-square</option>
+                        <option value="Bhattacharyya">Bhattacharyya</option>
+                        <option value="Flann">Flann</option>
+                        <option value="Brute force">Brute force</option>
+                        <option value="Intersection">Intersection</option>
+                        <option value="Correlation">Correlation</option>
+                    </select>
+                    <button type="submit">Search</button>
+                </div>
+            </fieldset>
+
+            <fieldset class="rp_box">
+                <legend>Recall/Precision</legend>
+                <button type="button" style="width:100%" id="compute-rp-btn">Compute R/P Curve</button>
+            </fieldset>
+        </div>
+
+        <div class="titles-bar">
+            <div style="width:250px">Request Image</div>
+            <div style="flex:3">Results</div>
+            <div style="width:300px">R/P Curve</div>
+        </div>
+
+        <div class="main-display">
+            <div class="display-column request-image">
+                <img id="preview" src="" alt="Label">
+            </div>
+            <div class="display-column results-grid" id="results">
+                <!-- GridLayout equivalent -->
+            </div>
+            <div class="display-column rp-curve">
+                <img id="pr-curve" src="" alt="Label">
+            </div>
+        </div>
+
+        <div class="footer">
+            <label>ProgressBar</label>
+            <progress value="0" max="100" id="progress"></progress>
+            <span>0%</span>
+            <button type="button" class="quit-btn" onclick="window.close()">Quit</button>
+        </div>
+    </form>
+
     <script>
-        document.getElementById('unimodal-form').onsubmit = async (e) => {
-            e.preventDefault();
-            showLoading();
-            const formData = new FormData(e.target);
-            const response = await fetch('/search_unimodal', {
-                method: 'POST',
-                body: formData
-            });
-            const data = await response.json();
-            displayResults(data);
+        const form = document.getElementById('mir-form');
+        const imageInput = document.getElementById('image-input');
+        const preview = document.getElementById('preview');
+        const results = document.getElementById('results');
+        const prCurve = document.getElementById('pr-curve');
+        const progress = document.getElementById('progress');
+
+        imageInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+            }
         };
 
-        document.getElementById('multimodal-form').onsubmit = async (e) => {
+        form.onsubmit = async (e) => {
             e.preventDefault();
-            showLoading();
-            const formData = new FormData(e.target);
-            const response = await fetch('/search_multimodal', {
-                method: 'POST',
-                body: formData
-            });
-            const data = await response.json();
-            displayResults(data);
+            results.innerHTML = 'Searching...';
+            progress.value = 50;
+
+            const formData = new FormData(form);
+            // Handle multiple descriptors
+            const selectedDescs = Array.from(document.querySelectorAll('input[name="descriptor"]:checked')).map(cb => cb.value);
+            formData.delete('descriptor');
+            formData.append('descriptor', selectedDescs[0] || 'ViT'); // Use first for now to match backend
+
+            try {
+                const response = await fetch('/search_unimodal', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                
+                results.innerHTML = '';
+                if (data.error) {
+                    results.innerHTML = data.error;
+                    return;
+                }
+
+                (data.results || data).forEach(res => {
+                    const div = document.createElement('div');
+                    div.className = 'result-item';
+                    div.innerHTML = `<img src="${res.path}" title="Score: ${res.score.toFixed(4)}">`;
+                    results.appendChild(div);
+                });
+
+                if (data.pr_curve) {
+                    prCurve.src = `data:image/png;base64,${data.pr_curve}`;
+                }
+                progress.value = 100;
+            } catch (err) {
+                results.innerHTML = 'Error searching.';
+            }
         };
 
-        function showLoading() {
-            document.getElementById('results').innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 3rem;">🔍 Searching... Please wait.</div>';
-        }
-
-
-        function displayResults(data) {
-            const container = document.getElementById('results');
-            const curveContainer = document.getElementById('curve-container');
-            const prCurveImg = document.getElementById('pr-curve');
-            
-            container.innerHTML = '';
-            
-            // Handle error response
-            if (data.error) {
-                container.innerHTML = `<div style="grid-column: 1/-1; color: #ef4444; text-align: center; padding: 2rem;">❌ ${data.error}</div>`;
-                curveContainer.style.display = 'none';
-                return;
-            }
-
-            // Display PR Curve if available
-            if (data.pr_curve) {
-                prCurveImg.src = `data:image/png;base64,${data.pr_curve}`;
-                curveContainer.style.display = 'block';
-            } else {
-                curveContainer.style.display = 'none';
-            }
-
-            const results = data.results || data;
-            if (results.length === 0) {
-                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 2rem;">No results found.</div>';
-                return;
-            }
-
-            results.forEach(res => {
-                const item = document.createElement('div');
-                item.className = 'result-item';
-                item.innerHTML = `
-                    <img src="${res.path}" alt="result">
-                    <div class="result-info">
-                        <div class="score">Score: ${res.score.toFixed(4)}</div>
-                        <div style="font-size: 0.7rem; color: #64748b;">${res.path.split('/').pop()}</div>
-                    </div>
-                `;
-                container.appendChild(item);
-            });
-        }
-
+        document.getElementById('compute-rp-btn').onclick = () => {
+            // Backend handles PR generation automatically with search
+            alert('PR Curve generated with results.');
+        };
     </script>
 </body>
 </html>
