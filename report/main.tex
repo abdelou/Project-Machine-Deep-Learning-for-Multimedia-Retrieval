@@ -80,50 +80,55 @@
 }
 \makeatother
 
+\definecolor{bleuUMONS}{RGB}{68, 93, 137}
+
 \begin{document}
 
 \begin{titlepage}
-    \centering
-    % Logo UMONS en haut
-    \includegraphics[width=0.4\textwidth]{umonsCharte/UMONS-Logo.jpg}\\[1cm]
+    % --- TOP LOGO ---
+    \begin{flushright}
+        \includegraphics[width=5cm]{umonsCharte/UMONS-Logo.jpg}
+    \end{flushright}
     
-    % Photo de la Faculté (Statue/Bâtiment)
-    \includegraphics[width=0.9\textwidth]{umonsCharte/FPMS-Photo.jpg}\\[1.5cm]
+    \vspace{0.5cm}
     
-    {\Large \textbf{Rapport de Projet : Moteur de Recherche d'Images Multimédia (MIR)}}\\[0.5cm]
-    {\large \textit{Projet de modélisation et de développement numérique pour l'entreprise}}\\[1.5cm]
+    % --- BLUE HEADER BAR ---
+    \begin{flushright}
+        \colorbox{bleuUMONS}{%
+            \begin{minipage}[c][1.5cm][c]{0.6\textwidth}
+                \color{white} \quad \Large \textbf{Faculté Polytechnique}
+            \end{minipage}
+        }
+    \end{flushright}
     
-    \begin{minipage}{0.45\textwidth}
-        \begin{flushleft} \large
-            \textbf{Étudiant :}\\
-            Abdelouahad \\
-            (Master 2 F.P.Ms / F.S.)
-        \end{flushleft}
+    \vspace{1cm}
+    
+    % --- MAIN BODY (TWO COLUMNS) ---
+    \begin{minipage}[t]{0.35\textwidth}
+        \vspace{0pt}
+        \includegraphics[width=\textwidth, height=18cm, keepaspectratio=false]{umonsCharte/FPMS-Photo.jpg}
     \end{minipage}
-    ~
-    \begin{minipage}{0.45\textwidth}
-        \begin{flushright} \large
-            \textbf{Superviseur :}\\
-            SIDI Mahmoudi
-        \end{flushright}
-    \end{minipage}\\[2cm]
-    
-    % Logos des facultés en bas
-    \begin{figure}[H]
-        \centering
-        \begin{subfigure}{0.4\textwidth}
-            \centering
-            \includegraphics[height=1.5cm]{umonsCharte/FPMS-Logo.jpg}
-        \end{subfigure}
-        \begin{subfigure}{0.4\textwidth}
-            \centering
-            \includegraphics[height=1.5cm]{umonsCharte/FS-Logo.jpg}
-        \end{subfigure}
-    \end{figure}
-    
-    \vfill
-    {\large Année académique 2025 - 2026}
+    \hfill
+    \begin{minipage}[t]{0.6\textwidth}
+        \vspace{0pt}
+        \raggedright
+        {\huge \textbf{Projet de modélisation et de développement numérique pour l'entreprise}}\\[0.8cm]
+        {\large Rapport de Projet : Moteur de Recherche d'Images Multimédia (MIR)}\\[2cm]
+        
+        {\large Rapport de Projet}\\[4cm]
+        
+        {\large Étudiants en Master 2 à la F.P.Ms et à la F.S.}\\[1.5cm]
+        
+        \includegraphics[width=5cm]{umonsCharte/FPMS-Logo.jpg}\\[1cm]
+        
+        {\large Sous la supervision de Saïd Mahmoudi}\\[1.5cm]
+        
+        {\large 2025 - 2026}\\[1.5cm]
+        
+        \includegraphics[width=2cm]{umonsCharte/PoleH.jpg}
+    \end{minipage}
 \end{titlepage}
+
 
 
 
