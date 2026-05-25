@@ -69,6 +69,10 @@ python3 src/app.py
 ```
 L'interface sera disponible sur : http://127.0.0.1:5001
 ```
+```
+pour tout nettoyer et lancer le projet d'un coup : lsof -ti :5001 | xargs kill -9 ; source venv/bin/activate ; python src/app.py
+
+```
 ---
 
 *Projet réalisé dans le cadre du module Machine and Deep Learning for Multimedia Retrieval - 2026*
