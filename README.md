@@ -5,17 +5,9 @@ Ce projet est un moteur de recherche d'images avancé combinant des approches de
 ## 📸 Résultats de Recherche & Courbes PR
 
 ### 1. Vision Transformer (ViT)
-<img src="docs/screenshots/capture_VIT.png" width="800px">
-
-### 2. SIFT (Descripteur Local)
-<img src="docs/screenshots/capture2-SIFT.png" width="800px">
-
-### 3. Histogramme BGR (Descripteur Couleur)
-<img src="docs/screenshots/capture1_BGR.png" width="800px">
+<img src="docs/screenshots/exemple.png" width="100px">
 
 
-
----
 
 ## 🚀 Fonctionnalités Clés (Alignement TP3)
 
