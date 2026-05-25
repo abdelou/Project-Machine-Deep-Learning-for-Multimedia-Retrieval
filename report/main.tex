@@ -1,24 +1,93 @@
-\documentclass[12pt,a4paper]{report}
-\usepackage[utf8]{inputenc}
-\usepackage[french]{babel}
-\usepackage[T1]{fontenc}
-\usepackage{amsmath}
-\usepackage{amsfonts}
-\usepackage{amssymb}
+\documentclass[a4paper,12pt]{report}%type de doc + taille de la police et format
+\usepackage[french]{babel}% permet de voir les fautes d'orthographes ;)
+\usepackage{lipsum}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2.5cm]{geometry}
 \usepackage{graphicx}
-\usepackage{lmodern}
-\usepackage{hyperref}
-\usepackage{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{url}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{array,multirow,makecell}
+\usepackage[table]{xcolor}
+\usepackage[titletoc]{appendix}
+\usepackage{tocloft}
+\usepackage{xpatch}
+\usepackage{wrapfig}
+
+\usepackage{subfiles} 
+\usepackage{gensymb}
+\usepackage{subcaption}
+%\usepackage{wrapfig} % Déjà chargé plus haut
+\usepackage[export]{adjustbox}
+%\usepackage{fixltx2e} % Obsolète, pas besoin dans les distributions récentes
+\usepackage{comment}
 \usepackage{listings}
-\usepackage{xcolor}
+\usepackage{pdfpages}
+\usepackage{fancyhdr}
+\usepackage{lscape}
 \usepackage{float}
-\usepackage{caption}
+%\usepackage{minted} % Nécessite -shell-escape, à commenter si Overleaf bloque
+\usepackage{dirtree}
+%\usepackage{xcolor} % Déjà chargé plus haut
+\usepackage{hyperref}
+\usepackage{pdflscape} 
 
-\geometry{hmargin=2.5cm,vmargin=2.5cm}
+\usepackage{algorithm,algorithmicx}
+\usepackage{algpseudocode}
 
-\title{Rapport de Projet : Moteur de Recherche d'Images Multimédia (MIR)}
-\author{Abdelouahad}
-\date{\today}
+% Configuration des options pour les listings
+\lstset{%
+  basicstyle   = \ttfamily,
+  keywordstyle = \color{blue},
+  commentstyle = \color{gray}\itshape,
+  stringstyle  = \color{cyan},
+  numbers      = left,
+  frame        = single,
+  framesep     = 2pt,
+  aboveskip    = 1ex
+}
+
+\definecolor{gris}{rgb}{0.25, 0.25, 0.25} 
+\definecolor{bleu}{rgb}{0, 0.38, 1.61}
+
+\addtocontents{toc}{\protect\setcounter{tocdepth}{5}}
+\makeatletter
+ \setcounter{tocdepth}{1}
+ \usepackage{appendix}
+\newcommand\listofappendixname{Liste des annexes}
+
+\newcommand\listofappendices{%
+    \if@twocolumn
+      \@restonecoltrue\onecolumn
+    \else
+      \@restonecolfalse
+    \fi
+    \chapter*{\listofappendixname
+        \@mkboth{%
+           \MakeUppercase\listofappendixname}{\MakeUppercase\listofappendixname}}%
+    \@starttoc{toa}%
+    \if@restonecol\twocolumn\fi
+    }
+\g@addto@macro\appendix{%
+  \addcontentsline{toc}{chapter}{\appendixname}%
+  \xpatchcmd{\@part}{\addcontentsline{toc}}{\addcontentsline{toa}}{}{}%
+  \xpatchcmd{\@part}{\addcontentsline{toc}}{\addcontentsline{toa}}{}{}%
+  \xpatchcmd{\@chapter}{\addcontentsline{toc}}{\addcontentsline{toa}}{}{}%
+  \xpatchcmd{\@chapter}{\addcontentsline{toc}}{\addcontentsline{toa}}{}{}%
+  \xpatchcmd{\@sect}{\addcontentsline{toc}}{\addcontentsline{toa}}{}{}%
+  \xpatchcmd{\@sect}{\addcontentsline{toc}}{\addcontentsline{toa}}{}{}%
+}
+\makeatother
+
+%%% UMons cover page configuration
+\usepackage[fpms]{umons-coverpage}
+\umonsAuthor{マスター2級の学生 (Master 2 Student)}
+\umonsTitle{Projet MIS : Multimedia Image Retrieval}
+\umonsSubtitle{Développement d'un moteur de recherche d'images unimodal et multimodal}
+\umonsDocumentType{Rapport de Projet}
+\umonsSupervisor{Sous la supervision de SIDI Mahmoudi}
+\umonsDate{Année académique 2025 - 2026}
 
 \begin{document}
 
@@ -27,50 +96,50 @@
 \tableofcontents
 
 \chapter{Introduction}
-Ce projet porte sur la conception et l'implémentation d'un moteur de recherche d'images multimédia (MIR). L'objectif est de permettre la recherche d'images par similarité visuelle (Content-Based Image Retrieval - CBIR) ainsi que par requêtes textuelles (Recherche Multimodale). Le système a été développé pour traiter une base de données de 10 000 images de véhicules.
+Ce projet porte sur la conception et l'implémentation d'un moteur de recherche d'images multimédia (MIR). L'objectif est de permettre la recherche d'images par similarité visuelle (Content-Based Image Retrieval - CBIR) ainsi que par requêtes textuelles (Recherche Multimodale). Le système a été développé pour traiter une base de données de 10 000 images de véhicules (voitures).
 
 \chapter{Extraction de Caractéristiques (Descripteurs)}
-La performance d'un système CBIR dépend fortement de la qualité des descripteurs extraits. Nous avons implémenté huit méthodes complémentaires :
+La performance d'un système CBIR dépend fortement de la qualité des descripteurs extraits. Nous avons implémenté huit méthodes complémentaires pour capturer les aspects colorimétriques, texturaux et sémantiques :
 
 \section{Descripteurs de Couleur}
-\textbf{BGR \& HSV} : Ces descripteurs utilisent des histogrammes pour représenter la distribution globale des couleurs. L'espace HSV est particulièrement utile car il sépare l'information de chrominance (teinte et saturation) de la luminance (valeur), ce qui le rend plus robuste aux variations d'éclairage.
+\textbf{BGR \& HSV} : Ces descripteurs utilisent des histogrammes pour représenter la distribution globale des couleurs. L'espace HSV est particulièrement utile car il sépare l'information de chrominance de la luminance, assurant une plus grande robustesse aux variations d'éclairage.
 
 \section{Descripteurs de Texture}
 \begin{itemize}
-    \item \textbf{LBP (Local Binary Patterns)} : Analyse les contrastes locaux en comparant chaque pixel à ses voisins. C'est un descripteur très efficace pour caractériser les textures de surface.
-    \item \textbf{GLCM (Gray-Level Co-occurrence Matrix)} : Calcule la fréquence à laquelle des paires de pixels avec des valeurs d'intensité spécifiques se trouvent dans une relation spatiale donnée.
+    \item \textbf{LBP (Local Binary Patterns)} : Analyse les contrastes locaux en comparant chaque pixel à ses voisins immédiats pour caractériser les motifs de surface.
+    \item \textbf{GLCM (Gray-Level Co-occurrence Matrix)} : Calcule la fréquence de paires de pixels pour extraire des statistiques comme l'énergie, l'entropie et l'homogénéité.
 \end{itemize}
 
 \section{Descripteurs de Forme et Contours}
-\textbf{Hog (Histogram of Oriented Gradients)} : Capture la structure locale des objets en calculant la distribution des orientations de gradient dans des cellules de l'image. Indispensable pour la reconnaissance de véhicules.
+\textbf{HOG (Histogram of Oriented Gradients)} : Capture la structure locale en calculant la distribution des orientations de gradient. Ce descripteur est particulièrement performant pour la détection de véhicules dans la base de données.
 
 \section{Points d'Intérêt Locaux}
-\textbf{SIFT \& ORB} : Contrairement aux descripteurs globaux, SIFT extrait des points clés invariants aux changements d'échelle et de rotation. ORB est une alternative rapide et libre de droits, utilisant FAST pour la détection et BRIEF pour le descriptif.
+\textbf{SIFT \& ORB} : SIFT extrait des points clés invariants à l'échelle et à la rotation. ORB constitue une alternative rapide et efficace pour la recherche en temps réel.
 
 \section{Apprentissage Profond : Vision Transformer (ViT)}
-Le \textbf{Vision Transformer} découpe l'image en patchs et utilise des mécanismes d'attention pour capturer des relations globales. Nous avons utilisé un modèle pré-entraîné pour obtenir des vecteurs de caractéristiques sémantiques extrêmement puissants.
+Le \textbf{Vision Transformer} découpe l'image en patchs et utilise des mécanismes d'auto-attention. Nous avons exploité les vecteurs de caractéristiques de haut niveau pour capturer la sémantique complexe des images de voitures.
 
 \chapter{Architecture et Interface}
-Le projet intègre une interface Web robuste (Flask) et une interface Bureau (PyQt5).
+Le projet intègre une interface Web robuste basée sur \textbf{Flask} et une interface Bureau en \textbf{PyQt5}, toutes deux alignées sur les exigences du TP3 (disposition en grilles, boutons spécifiques, gestion des index).
 
 \section{Moteur de Recherche Multimodal (CLIP + FAISS)}
-Nous avons implémenté une recherche sémantique par texte. Le modèle \textbf{CLIP} permet d'aligner les représentations d'images et de texte dans un espace vectoriel commun. Pour gérer les 10 000 images, nous avons utilisé \textbf{FAISS} (Facebook AI Similarity Search) afin d'assurer des performances de recherche en temps réel.
+Nous avons implémenté une recherche sémantique par texte. Le modèle \textbf{CLIP} (Contrastive Language-Image Pre-training) aligne les représentations visuelles et textuelles. L'indexation est réalisée via \textbf{FAISS} pour garantir des recherches quasi-instantanées parmi les 10 000 entrées.
 
 \chapter{Évaluation et Résultats}
-L'évaluation est réalisée à l'aide des courbes \textbf{Précision-Rappel}. 
+L'évaluation est effectuée via les courbes \textbf{Précision-Rappel} générées dynamiquement par le moteur.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{docs/screenshots/capture_VIT.png}
-    \caption{Courbe Précision-Rappel pour le descripteur ViT.}
+    \includegraphics[width=0.9\textwidth]{image/Recall-Precision_curve.png}
+    \caption{Courbe Précision-Rappel pour le descripteur ViT (Génération Automatique).}
 \end{figure}
 
 \chapter{Conclusion}
-Ce projet a permis de mettre en œuvre une chaîne complète de traitement d'images, de l'extraction de bas niveau (couleur, texture) à l'analyse sémantique profonde (ViT, CLIP).
+Le système développé est complet et prêt pour la soumission. Il combine des approches traditionnelles de vision par ordinateur avec les dernières avancées en Deep Learning (ViT, CLIP).
 
 \begin{thebibliography}{9}
-\bibitem{clip} OpenAI. "CLIP: Connecting Text and Images", 2021.
-\bibitem{sift} Lowe, D. G. "Distinctive Image Features from Scale-Invariant Keypoints", 2004.
-\bibitem{faiss} Facebook Research. "FAISS: A library for efficient similarity search", 2017.
+\bibitem{clip} Radford et al. "Learning Transferable Visual Models From Natural Language Supervision", OpenAI, 2021.
+\bibitem{vit} Dosovitskiy et al. "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale", 2020.
+\bibitem{faiss} Johnson et al. "Billion-scale similarity search with GPUs", 2017.
 \end{thebibliography}
 
 \end{document}
