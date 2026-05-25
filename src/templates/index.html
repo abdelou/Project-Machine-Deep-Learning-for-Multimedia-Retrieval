@@ -26,10 +26,10 @@
         }
 
         .window-title {
-            background-color: #008042;
+            background-color: #000080;
             color: white;
-            padding: 3px 10px;
-            font-size: 14px;
+            padding: 5px 15px;
+            font-size: 16px;
             font-weight: bold;
             display: flex;
             justify-content: space-between;
@@ -37,12 +37,12 @@
         }
 
         .container-wrapper {
-            padding: 10px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
             flex: 1;
-            overflow: hidden;
+            overflow-y: auto;
         }
 
         .top-row {
@@ -53,87 +53,73 @@
 
         fieldset {
             border: 2px groove #fff;
-            padding: 10px;
+            padding: 15px;
             margin: 0;
         }
 
         legend {
             font-weight: bold;
-            font-size: 13px;
+            font-size: 14px;
         }
 
-        .request-box {
-            width: 120px;
-            text-align: center;
-        }
-
-        .descriptor-box {
-            flex: 1;
-        }
-
-        .search-box {
-            flex: 2;
-        }
-
-        .rp_box {
-            width: 200px;
-        }
+        .request-box { width: 140px; text-align: center; }
+        .descriptor-box { flex: 1; }
+        .search-box { flex: 2; }
+        .rp_box { width: 220px; }
 
         .descriptor-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
-            font-size: 13px;
+            gap: 8px;
+            font-size: 14px;
         }
 
         .search-controls {
             display: flex;
             align-items: center;
             justify-content: space-around;
-            gap: 10px;
+            gap: 15px;
             height: 100%;
         }
 
         button {
             background: #d4d0c8;
             border: 2px outset #fff;
-            padding: 8px 15px;
+            padding: 10px 20px;
             cursor: pointer;
             font-family: inherit;
-            font-size: 13px;
-        }
-
-        button:active {
-            border: 2px inset #fff;
-        }
-
-        .load-btn {
-            width: 90px;
-            height: 70px;
+            font-size: 14px;
             font-weight: bold;
         }
 
-        select {
-            padding: 5px;
-            font-size: 13px;
-        }
+        button:active { border: 2px inset #fff; }
+
+        .load-btn { width: 100px; height: 80px; }
+
+        select { padding: 8px; font-size: 14px; }
 
         .titles-bar {
             display: flex;
             font-weight: bold;
             text-align: center;
-            background: #d4d0c8;
+            background: #c0c0c0;
             border: 1px solid var(--border);
-            padding: 5px;
+            padding: 8px;
             flex-shrink: 0;
+            font-size: 15px;
         }
 
         .main-display {
             display: flex;
-            gap: 10px;
+            flex-direction: column;
+            gap: 15px;
             flex: 1;
-            min-height: 0;
-            /* Important for flex child overflow */
+        }
+
+        .top-display-area {
+            display: flex;
+            gap: 15px;
+            height: 350px;
         }
 
         .display-column {
@@ -143,37 +129,29 @@
             position: relative;
         }
 
-        .request-image {
-            width: 300px;
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            padding-top: 20px;
-        }
-
-        .results-grid {
+        .request-image { width: 350px; display: flex; align-items: center; justify-content: center; }
+        .results-grid { flex: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; padding: 15px; }
+        
+        .bottom-display-area {
             flex: 1;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 10px;
-            padding: 15px;
-            align-content: start;
-        }
-
-        .rp-curve {
-            width: 450px;
             display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            padding-top: 20px;
+            flex-direction: column;
+            gap: 5px;
+            min-height: 400px;
         }
 
-        .request-image img,
-        .rp-curve img {
-            max-width: 95%;
-            height: auto;
-            border: 1px solid #808080;
+        .curve-container {
+            border: 1px solid var(--border);
+            background: #fff;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
         }
+
+        .request-image img { max-width: 90%; max-height: 90%; border: 1px solid #808080; }
+        .curve-container img { max-width: 98%; max-height: 98%; object-fit: contain; }
 
         .result-item img {
             width: 100%;
@@ -259,21 +237,27 @@
                 </fieldset>
             </div>
     
-            <div class="titles-bar">
-                <div style="width:300px">Request Image</div>
-                <div style="flex:1">Results</div>
-                <div style="width:450px">R/P Curve</div>
-            </div>
-    
             <div class="main-display">
-                <div class="display-column request-image">
-                    <img id="preview" src="" alt="Label">
+                <div class="titles-bar">
+                    <div style="width:350px">Request Image</div>
+                    <div style="flex:1">Results</div>
                 </div>
-                <div class="display-column results-grid" id="results">
-                    <!-- GridLayout equivalent -->
+                
+                <div class="top-display-area">
+                    <div class="display-column request-image">
+                        <img id="preview" src="" alt="Label">
+                    </div>
+                    <div class="display-column results-grid" id="results">
+                        <!-- Results Grid -->
+                    </div>
                 </div>
-                <div class="display-column rp-curve">
-                    <img id="pr-curve" src="" alt="Label">
+
+                <div class="titles-bar">R/P Curve (Full Width)</div>
+                
+                <div class="bottom-display-area">
+                    <div class="curve-container">
+                        <img id="pr-curve" src="" alt="Cliquez sur 'Compute R/P Curve' pour afficher le graphe">
+                    </div>
                 </div>
             </div>
     
@@ -285,6 +269,7 @@
             </div>
         </form>
     </div>
+
 
     <script>
         const form = document.getElementById('mir-form');
