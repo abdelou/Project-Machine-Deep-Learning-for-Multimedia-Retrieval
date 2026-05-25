@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,26 +18,37 @@
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .window-title {
+            background-color: #008042;
+            color: white;
+            padding: 3px 10px;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .container-wrapper {
             padding: 10px;
             display: flex;
             flex-direction: column;
             gap: 10px;
-        }
-
-        .window-title {
-            background-color: #000080;
-            color: white;
-            padding: 3px 5px;
-            font-size: 12px;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
+            flex: 1;
+            overflow: hidden;
         }
 
         .top-row {
             display: flex;
             gap: 10px;
+            flex-shrink: 0;
         }
 
         fieldset {
@@ -50,21 +62,34 @@
             font-size: 13px;
         }
 
-        .request-box { width: 100px; text-align: center; }
-        .descriptor-box { flex: 1; }
-        .search-box { flex: 2; }
-        .rp_box { width: 150px; }
+        .request-box {
+            width: 120px;
+            text-align: center;
+        }
+
+        .descriptor-box {
+            flex: 1;
+        }
+
+        .search-box {
+            flex: 2;
+        }
+
+        .rp_box {
+            width: 200px;
+        }
 
         .descriptor-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 5px;
-            font-size: 12px;
+            font-size: 13px;
         }
 
         .search-controls {
             display: flex;
             align-items: center;
+            justify-content: space-around;
             gap: 10px;
             height: 100%;
         }
@@ -72,16 +97,26 @@
         button {
             background: #d4d0c8;
             border: 2px outset #fff;
-            padding: 5px 10px;
+            padding: 8px 15px;
             cursor: pointer;
             font-family: inherit;
+            font-size: 13px;
         }
 
-        button:active { border: 2px inset #fff; }
+        button:active {
+            border: 2px inset #fff;
+        }
 
-        .load-btn { width: 80px; height: 60px; font-weight: bold; }
+        .load-btn {
+            width: 90px;
+            height: 70px;
+            font-weight: bold;
+        }
 
-        select { padding: 3px; }
+        select {
+            padding: 5px;
+            font-size: 13px;
+        }
 
         .titles-bar {
             display: flex;
@@ -89,13 +124,16 @@
             text-align: center;
             background: #d4d0c8;
             border: 1px solid var(--border);
-            padding: 2px;
+            padding: 5px;
+            flex-shrink: 0;
         }
 
         .main-display {
             display: flex;
             gap: 10px;
-            height: 400px;
+            flex: 1;
+            min-height: 0;
+            /* Important for flex child overflow */
         }
 
         .display-column {
@@ -105,13 +143,43 @@
             position: relative;
         }
 
-        .request-image { width: 250px; display: flex; align-items: center; justify-content: center; }
-        .results-grid { flex: 3; display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 5px; padding: 10px; }
-        .rp-curve { width: 300px; display: flex; align-items: center; justify-content: center; }
+        .request-image {
+            width: 300px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 20px;
+        }
 
-        .request-image img, .rp-curve img { max-width: 95%; max-height: 95%; }
+        .results-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            padding: 15px;
+            align-content: start;
+        }
 
-        .result-item img { width: 100%; height: auto; border: 1px solid #ccc; }
+        .rp-curve {
+            width: 450px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 20px;
+        }
+
+        .request-image img,
+        .rp-curve img {
+            max-width: 95%;
+            height: auto;
+            border: 1px solid #808080;
+        }
+
+        .result-item img {
+            width: 100%;
+            height: auto;
+            border: 1px solid #ccc;
+        }
 
         .footer {
             display: flex;
@@ -122,91 +190,101 @@
             background: #d4d0c8;
         }
 
-        progress { flex: 1; height: 20px; }
+        progress {
+            flex: 1;
+            height: 20px;
+        }
 
-        .quit-btn { width: 100px; }
+        .quit-btn {
+            width: 100px;
+        }
 
-        label { font-size: 12px; }
+        label {
+            font-size: 12px;
+        }
     </style>
 </head>
+
 <body>
     <div class="window-title">
         <span>MainWindow</span>
         <span>X</span>
     </div>
 
-    <form id="mir-form">
-        <div class="top-row">
-            <fieldset class="request-box">
-                <legend>Request</legend>
-                <input type="file" id="image-input" name="image" style="display:none" accept="image/*">
-                <button type="button" class="load-btn" onclick="document.getElementById('image-input').click()">Load</button>
-            </fieldset>
-
-            <fieldset class="descriptor-box">
-                <legend>Choice of descriptor</legend>
-                <div class="descriptor-grid">
-                    <label><input type="checkbox" name="descriptor" value="BGR"> BGR</label>
-                    <label><input type="checkbox" name="descriptor" value="HSV"> HSV</label>
-                    <label><input type="checkbox" name="descriptor" value="HOG"> HOG</label>
-                    <label><input type="checkbox" name="descriptor" value="SIFT"> SIFT</label>
-                    <label><input type="checkbox" name="descriptor" value="ORB"> ORB</label>
-                    <label><input type="checkbox" name="descriptor" value="Mom"> Mom.</label>
-                    <label><input type="checkbox" name="descriptor" value="LBP"> LBP</label>
-                    <label><input type="checkbox" name="descriptor" value="GLCM"> GLCM</label>
-                    <label><input type="checkbox" name="descriptor" value="ViT" checked> ViT</label>
+    <div class="container-wrapper">
+        <form id="mir-form">
+            <div class="top-row">
+                <fieldset class="request-box">
+                    <legend>Request</legend>
+                    <input type="file" id="image-input" name="image" style="display:none" accept="image/*">
+                    <button type="button" class="load-btn" onclick="document.getElementById('image-input').click()">Load</button>
+                </fieldset>
+    
+                <fieldset class="descriptor-box">
+                    <legend>Choice of descriptor</legend>
+                    <div class="descriptor-grid">
+                        <label><input type="checkbox" name="descriptor" value="BGR"> BGR</label>
+                        <label><input type="checkbox" name="descriptor" value="HSV"> HSV</label>
+                        <label><input type="checkbox" name="descriptor" value="HOG"> HOG</label>
+                        <label><input type="checkbox" name="descriptor" value="SIFT"> SIFT</label>
+                        <label><input type="checkbox" name="descriptor" value="ORB"> ORB</label>
+                        <label><input type="checkbox" name="descriptor" value="Mom"> Mom.</label>
+                        <label><input type="checkbox" name="descriptor" value="LBP"> LBP</label>
+                        <label><input type="checkbox" name="descriptor" value="GLCM"> GLCM</label>
+                        <label><input type="checkbox" name="descriptor" value="ViT" checked> ViT</label>
+                    </div>
+                </fieldset>
+    
+                <fieldset class="search-box">
+                    <legend>Search</legend>
+                    <div class="search-controls">
+                        <button type="button">Load descriptors</button>
+                        <label>Distance :</label>
+                        <select name="distance">
+                            <option value="Euclidienne">Euclidienne</option>
+                            <option value="Chicarre">Chi-square</option>
+                            <option value="Bhattacharyya">Bhattacharyya</option>
+                            <option value="Flann">Flann</option>
+                            <option value="Brute force">Brute force</option>
+                            <option value="Intersection">Intersection</option>
+                            <option value="Correlation">Correlation</option>
+                        </select>
+                        <button type="submit">Search</button>
+                    </div>
+                </fieldset>
+    
+                <fieldset class="rp_box">
+                    <legend>Recall/Precision</legend>
+                    <button type="button" style="width:100%" id="compute-rp-btn">Compute R/P Curve</button>
+                </fieldset>
+            </div>
+    
+            <div class="titles-bar">
+                <div style="width:300px">Request Image</div>
+                <div style="flex:1">Results</div>
+                <div style="width:450px">R/P Curve</div>
+            </div>
+    
+            <div class="main-display">
+                <div class="display-column request-image">
+                    <img id="preview" src="" alt="Label">
                 </div>
-            </fieldset>
-
-            <fieldset class="search-box">
-                <legend>Search</legend>
-                <div class="search-controls">
-                    <button type="button">Load descriptors</button>
-                    <label>Distance :</label>
-                    <select name="distance">
-                        <option value="Euclidienne">Euclidienne</option>
-                        <option value="Chicarre">Chi-square</option>
-                        <option value="Bhattacharyya">Bhattacharyya</option>
-                        <option value="Flann">Flann</option>
-                        <option value="Brute force">Brute force</option>
-                        <option value="Intersection">Intersection</option>
-                        <option value="Correlation">Correlation</option>
-                    </select>
-                    <button type="submit">Search</button>
+                <div class="display-column results-grid" id="results">
+                    <!-- GridLayout equivalent -->
                 </div>
-            </fieldset>
-
-            <fieldset class="rp_box">
-                <legend>Recall/Precision</legend>
-                <button type="button" style="width:100%" id="compute-rp-btn">Compute R/P Curve</button>
-            </fieldset>
-        </div>
-
-        <div class="titles-bar">
-            <div style="width:250px">Request Image</div>
-            <div style="flex:3">Results</div>
-            <div style="width:300px">R/P Curve</div>
-        </div>
-
-        <div class="main-display">
-            <div class="display-column request-image">
-                <img id="preview" src="" alt="Label">
+                <div class="display-column rp-curve">
+                    <img id="pr-curve" src="" alt="Label">
+                </div>
             </div>
-            <div class="display-column results-grid" id="results">
-                <!-- GridLayout equivalent -->
+    
+            <div class="footer">
+                <label>ProgressBar</label>
+                <progress value="0" max="100" id="progress"></progress>
+                <span>0%</span>
+                <button type="button" class="quit-btn" onclick="window.close()">Quit</button>
             </div>
-            <div class="display-column rp-curve">
-                <img id="pr-curve" src="" alt="Label">
-            </div>
-        </div>
-
-        <div class="footer">
-            <label>ProgressBar</label>
-            <progress value="0" max="100" id="progress"></progress>
-            <span>0%</span>
-            <button type="button" class="quit-btn" onclick="window.close()">Quit</button>
-        </div>
-    </form>
+        </form>
+    </div>
 
     <script>
         const form = document.getElementById('mir-form');
@@ -240,7 +318,7 @@
                     body: formData
                 });
                 const data = await response.json();
-                
+
                 results.innerHTML = '';
                 if (data.error) {
                     results.innerHTML = data.error;
@@ -269,4 +347,5 @@
         };
     </script>
 </body>
+
 </html>
