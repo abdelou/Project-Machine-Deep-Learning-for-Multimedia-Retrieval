@@ -1,0 +1,76 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{caption}
+
+\geometry{hmargin=2.5cm,vmargin=2.5cm}
+
+\title{Rapport de Projet : Moteur de Recherche d'Images Multimédia (MIR)}
+\author{Abdelouahad}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\chapter{Introduction}
+Ce projet porte sur la conception et l'implémentation d'un moteur de recherche d'images multimédia (MIR). L'objectif est de permettre la recherche d'images par similarité visuelle (Content-Based Image Retrieval - CBIR) ainsi que par requêtes textuelles (Recherche Multimodale). Le système a été développé pour traiter une base de données de 10 000 images de véhicules.
+
+\chapter{Extraction de Caractéristiques (Descripteurs)}
+La performance d'un système CBIR dépend fortement de la qualité des descripteurs extraits. Nous avons implémenté huit méthodes complémentaires :
+
+\section{Descripteurs de Couleur}
+\textbf{BGR \& HSV} : Ces descripteurs utilisent des histogrammes pour représenter la distribution globale des couleurs. L'espace HSV est particulièrement utile car il sépare l'information de chrominance (teinte et saturation) de la luminance (valeur), ce qui le rend plus robuste aux variations d'éclairage.
+
+\section{Descripteurs de Texture}
+\begin{itemize}
+    \item \textbf{LBP (Local Binary Patterns)} : Analyse les contrastes locaux en comparant chaque pixel à ses voisins. C'est un descripteur très efficace pour caractériser les textures de surface.
+    \item \textbf{GLCM (Gray-Level Co-occurrence Matrix)} : Calcule la fréquence à laquelle des paires de pixels avec des valeurs d'intensité spécifiques se trouvent dans une relation spatiale donnée.
+\end{itemize}
+
+\section{Descripteurs de Forme et Contours}
+\textbf{Hog (Histogram of Oriented Gradients)} : Capture la structure locale des objets en calculant la distribution des orientations de gradient dans des cellules de l'image. Indispensable pour la reconnaissance de véhicules.
+
+\section{Points d'Intérêt Locaux}
+\textbf{SIFT \& ORB} : Contrairement aux descripteurs globaux, SIFT extrait des points clés invariants aux changements d'échelle et de rotation. ORB est une alternative rapide et libre de droits, utilisant FAST pour la détection et BRIEF pour le descriptif.
+
+\section{Apprentissage Profond : Vision Transformer (ViT)}
+Le \textbf{Vision Transformer} découpe l'image en patchs et utilise des mécanismes d'attention pour capturer des relations globales. Nous avons utilisé un modèle pré-entraîné pour obtenir des vecteurs de caractéristiques sémantiques extrêmement puissants.
+
+\chapter{Architecture et Interface}
+Le projet intègre une interface Web robuste (Flask) et une interface Bureau (PyQt5).
+
+\section{Moteur de Recherche Multimodal (CLIP + FAISS)}
+Nous avons implémenté une recherche sémantique par texte. Le modèle \textbf{CLIP} permet d'aligner les représentations d'images et de texte dans un espace vectoriel commun. Pour gérer les 10 000 images, nous avons utilisé \textbf{FAISS} (Facebook AI Similarity Search) afin d'assurer des performances de recherche en temps réel.
+
+\chapter{Évaluation et Résultats}
+L'évaluation est réalisée à l'aide des courbes \textbf{Précision-Rappel}. 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{docs/screenshots/capture_VIT.png}
+    \caption{Courbe Précision-Rappel pour le descripteur ViT.}
+\end{figure}
+
+\chapter{Conclusion}
+Ce projet a permis de mettre en œuvre une chaîne complète de traitement d'images, de l'extraction de bas niveau (couleur, texture) à l'analyse sémantique profonde (ViT, CLIP).
+
+\begin{thebibliography}{9}
+\bibitem{clip} OpenAI. "CLIP: Connecting Text and Images", 2021.
+\bibitem{sift} Lowe, D. G. "Distinctive Image Features from Scale-Invariant Keypoints", 2004.
+\bibitem{faiss} Facebook Research. "FAISS: A library for efficient similarity search", 2017.
+\end{thebibliography}
+
+\end{document}
