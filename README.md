@@ -5,7 +5,7 @@ Ce projet est un moteur de recherche d'images avancé combinant des approches de
 ## 📸 Résultats de Recherche & Courbes PR
 
 ### 1. Vision Transformer (ViT)
-<img src="docs/screenshots/exemple.png" width="100px">
+<img src="docs/screenshots/exemple.png" width="800px">
 
 
 
