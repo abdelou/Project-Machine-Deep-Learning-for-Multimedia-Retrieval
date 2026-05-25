@@ -80,19 +80,27 @@
 }
 \makeatother
 
-%%% UMons cover page configuration
-\usepackage[fpms]{umons-coverpage}
-\umonsAuthor{Étudiant en Master 2 (F.P.Ms / F.S.)}
-\umonsTitle{Projet MIS : Multimedia Image Retrieval}
+%%% Configuration de la page de garde (Standard / University fallback)
+% Si vous avez le fichier umons-coverpage.sty, décommentez les lignes ci-dessous
+% \usepackage[fpms]{umons-coverpage}
+% \umonsAuthor{Étudiant en Master 2 (F.P.Ms / F.S.)}
+% \umonsTitle{Projet MIS : Multimedia Image Retrieval}
+% \umonsSubtitle{Développement d'un moteur de recherche d'images unimodal et multimodal}
+% \umonsDocumentType{Rapport de Projet}
+% \umonsSupervisor{Sous la supervision de SIDI Mahmoudi}
+% \umonsDate{Année académique 2025 - 2026}
 
-\umonsSubtitle{Développement d'un moteur de recherche d'images unimodal et multimodal}
-\umonsDocumentType{Rapport de Projet}
-\umonsSupervisor{Sous la supervision de SIDI Mahmoudi}
-\umonsDate{Année académique 2025 - 2026}
+% Standard Title Block (si le package UMONS est manquant)
+\title{Rapport de Projet : Moteur de Recherche d'Images Multimédia (MIR)}
+\author{Étudiant en Master 2 (F.P.Ms / F.S.) \\ Sous la supervision de SIDI Mahmoudi}
+\date{Année académique 2025 - 2026}
 
 \begin{document}
 
+% \maketitle % Utilisez le maketitle standard si le package UMONS est manquant
+% Si vous utilisez umons-coverpage, gardez \maketitle mais décommentez les champs au-dessus.
 \maketitle
+
 
 \tableofcontents
 
