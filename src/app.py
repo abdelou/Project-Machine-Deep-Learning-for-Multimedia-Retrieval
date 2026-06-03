@@ -30,21 +30,17 @@ extractors = {
 }
 multimodal_engine = MultimodalEngine()
 
-def generate_pr_curve_base64(retrieved_paths, query_path):
-    query_class = extract_class_id(query_path)
-    relevant_count = 0
+def create_plot(k, retrieved_classes, query_classes, total_relevant):
     precisions = []
     recalls = []
-    
-    # In a real scenario, we need the total number of relevant items in the DB
-    # For WANG/Dataset, let's assume classes are 100 images each or count them
-    total_relevant = 100 # Default for WANG, or we could scan DATA_DIR
-    
-    for i, path in enumerate(retrieved_paths):
-        if extract_class_id(path) == query_class:
+    relevant_count = 0
+    query_class = query_classes[0] if isinstance(query_classes, list) else query_classes
+
+    for i in range(k):
+        if i < len(retrieved_classes) and retrieved_classes[i] == query_class:
             relevant_count += 1
         precisions.append(relevant_count / (i + 1))
-        recalls.append(relevant_count / total_relevant)
+        recalls.append(relevant_count / total_relevant if total_relevant > 0 else 0)
     
     plt.figure(figsize=(9, 7))
     plt.plot(recalls, precisions, marker='.', color='#55b6a3')
@@ -130,7 +126,16 @@ def search_unimodal():
     
     # 4. Format results & Generate PR Curve
     retrieved_image_paths = [v[0] for v in voisins]
-    pr_curve = generate_pr_curve_base64(retrieved_image_paths, img_path)
+    retrieved_classes = [extract_class_id(p) for f, p, d in [ (v[0], v[0], v[2]) for v in voisins ]] # Helper to get path
+    # Actually retrieved_image_paths is already what we need
+    retrieved_classes = [extract_class_id(p) for p in retrieved_image_paths]
+    query_class = extract_class_id(img_path)
+    
+    # Count relevant items in DATA_DIR for this class
+    all_images = [f for f in os.listdir(DATA_DIR) if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
+    total_relevant = len([f for f in all_images if extract_class_id(f) == query_class])
+    
+    pr_curve = create_plot(len(voisins), retrieved_classes, [query_class], total_relevant)
     
     results = []
     for path, feature, dist in voisins:
@@ -171,8 +176,7 @@ def search_multimodal():
         if top_classes:
             dominant_class = max(set(top_classes), key=top_classes.count)
             # Find all relevant items in dataset for this class
-            DATASET_DIR = os.path.join('data', 'dataset')
-            all_images = [f for f in os.listdir(DATASET_DIR) if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
+            all_images = [f for f in os.listdir(DATA_DIR) if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
             relevant_items = len([f for f in all_images if extract_class_id(f) == dominant_class])
             
             # Compute plot
@@ -205,7 +209,7 @@ def search_multimodal():
             "path": f"/images/{rel_path}",
             "score": res['score']
         })
-    return jsonify(results)
+    return jsonify(formatted_results)
 
 
 if __name__ == '__main__':
