@@ -785,11 +785,12 @@ class ImageLoaderThread(QtCore.QThread):
         total_images = len(images)
         for i, image_name in enumerate(images):
             image_path = os.path.join(self.folder, image_name)
-            self.add_image_path.emit(image_path)
             if not os.path.exists(image_path) or not os.path.isfile(image_path):
                 continue
             if not image_path.lower().endswith(('.bmp', '.jpeg', '.jpg', '.png', '.tif', '.tiff')):
                 continue
+            
+            self.add_image_path.emit(image_path)
             progress = int((i + 1) / total_images * 100)
             self.update_progress.emit(progress)
         self.completed.emit()
