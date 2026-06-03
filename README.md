@@ -74,6 +74,10 @@ pour tout nettoyer et lancer le projet d'un coup : lsof -ti :5001 | xargs kill -
 
 ```
 ---
+### 3. Interface Bureau (PyQt5)
+```bash
 
+python src/interface.py
+```
 *Projet réalisé dans le cadre du module Machine and Deep Learning for Multimedia Retrieval - 2026*
 
