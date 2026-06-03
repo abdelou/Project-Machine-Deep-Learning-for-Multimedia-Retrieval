@@ -44,14 +44,19 @@ def bruteForceMatching(a, b):
     if a is None or b is None or len(a) == 0 or len(b) == 0:
         return 1e9
         
-    # SIFT defaults to float32 and L2, ORB defaults to uint8 and Hamming
-    # However, I quantized everything to uint8 to save space
-    # So we use HAMMING if they are uint8 (ORB) or L2 if they are float.
-    # Actually, SIFT quantized to uint8 still works better with L2 or L1.
-    
-    # Simple heuristic: if descriptor dim is 128, it's likely SIFT. if 32, it's ORB.
+    a = np.array(a)
+    b = np.array(b)
+
+    # If it's a 1D global descriptor, reshape to 2D (1, D)
+    if len(a.shape) == 1:
+        a = a.reshape(1, -1)
+    if len(b.shape) == 1:
+        b = b.reshape(1, -1)
+
+    # Heuristic for norm selection
     norm = cv2.NORM_L2
-    if a.shape[1] == 32: # ORB dim
+    # Check if ORB (32 dims)
+    if a.shape[1] == 32:
         norm = cv2.NORM_HAMMING
         
     bf = cv2.BFMatcher(norm)
@@ -60,8 +65,12 @@ def bruteForceMatching(a, b):
         if not matches: return 1e9
         dist_vals = [m.distance for m in matches]
         return np.mean(dist_vals)
-    except:
-        return 1e9
+    except Exception as e:
+        # If still fails (e.g. incompatible types), fallback to Euclidean
+        try:
+            return euclidean(a.flatten(), b.flatten())
+        except:
+            return 1e9
 
 
 def distance_f(l1,l2,distanceName):
