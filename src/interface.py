@@ -755,16 +755,9 @@ class DescriptorLoaderThread(QtCore.QThread):
         descriptors = {}
         for n, descriptor in enumerate(self.descriptors) :
             feature_extractor = FEATURES[descriptor]()
-            descriptor_folder = self.folder + "/" + descriptor
-            if not os.path.exists(descriptor_folder) :
-                print(f"Folder {descriptor_folder} does not exist -> indexing")
-                feature_extractor.index_database(self.imagesPath, self.folder)
-            else :
-                for image_path in self.imagesPath :
-                    image_descriptor_path = self.folder + "/" + descriptor + "/" + image_path.split("/")[-1].split(".")[0] + ".txt"
-                    if not os.path.exists(image_descriptor_path) :
-                        print(f"File {image_descriptor_path}.txt does not exist -> indexing")
-                        feature_extractor.index_element(image_path, self.folder)
+            # Index the database (handles incremental indexing automatically)
+            feature_extractor.index_database(self.imagesPath, self.folder)
+            
             features = feature_extractor.load_features(self.folder)
             self.add_feature.emit(descriptor, features)
             if self.fusion :
