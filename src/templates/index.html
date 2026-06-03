@@ -231,7 +231,9 @@
                             <button type="submit" class="search-unimodal-btn">Search (Image)</button>
                         </div>
                         <div style="width: 100%; display: flex; gap: 10px;">
-                            <input type="text" id="multimodal-query" placeholder="Enter text query (e.g. 'voiture rouge')..." style="flex: 3; padding: 5px;">
+                            <input type="text" id="multimodal-query" placeholder="Enter text query (e.g. 'voiture rouge')..." 
+                                   style="flex: 3; padding: 5px;"
+                                   onkeydown="if(event.key==='Enter'){ event.preventDefault(); searchMultimodalText(); }">
                             <button type="button" class="search-multimodal-btn" onclick="searchMultimodalText()" style="flex: 1;">Multimodal Search (Text)</button>
                         </div>
                     </div>

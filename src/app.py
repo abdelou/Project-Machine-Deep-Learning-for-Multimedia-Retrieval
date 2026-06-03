@@ -98,8 +98,9 @@ def search_unimodal():
         distance_name = "Brute force"
     
     file = request.files['image']
-    # ...
-    # (reusing existing code below)
+    if file.filename == '':
+        return jsonify({"error": "No image selected for unimodal search. Please load an image first."}), 400
+        
     img_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(img_path)
     
