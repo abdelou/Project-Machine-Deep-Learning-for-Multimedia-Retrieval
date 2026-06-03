@@ -134,7 +134,26 @@ class TP3MainWindow(QtWidgets.QMainWindow):
         self.bottom_hbox.addWidget(self.btn_quit)
         self.main_layout.addLayout(self.bottom_hbox)
         
+        # --- Multimodal Tab (Added) ---
+        self.multimodal_group = QGroupBox("Multimodal Search (CLIP)")
+        self.multimodal_hbox = QHBoxLayout()
+        self.input_query = QtWidgets.QLineEdit()
+        self.input_query.setPlaceholderText("Enter text query (e.g. 'voiture rouge')...")
+        self.btn_search_multimodal = QPushButton("Text Search")
+        self.multimodal_hbox.addWidget(self.input_query)
+        self.multimodal_hbox.addWidget(self.btn_search_multimodal)
+        self.multimodal_group.setLayout(self.multimodal_hbox)
+        self.main_layout.addWidget(self.multimodal_group)
+        
         # Initialization
+        from multimodal_retrieval import MultimodalEngine
+        self.multimodal_engine = MultimodalEngine()
+        # Load multimodal index if exists
+        idx_path = os.path.join('extracted_features', 'multimodal', 'flickr8k_clip.index')
+        npy_path = os.path.join('extracted_features', 'multimodal', 'flickr8k_paths.npy')
+        if os.path.exists(idx_path):
+            self.multimodal_engine.load_index(idx_path, npy_path)
+        
         self.image_request_path = None
         self.features = {}
         self.imagesPath = []
@@ -145,9 +164,38 @@ class TP3MainWindow(QtWidgets.QMainWindow):
         self.btn_load_desc.clicked.connect(self.load_descriptors)
         self.btn_search.clicked.connect(self.search)
         self.btn_compute_rp.clicked.connect(self.compute_rp_curve)
+        self.btn_search_multimodal.clicked.connect(self.search_multimodal)
         
         # Load dataset images automatically if possible
         self.auto_load_images()
+
+    def search_multimodal(self):
+        query = self.input_query.text()
+        if not query:
+            QtWidgets.QMessageBox.warning(self, "Warning", "Please enter a text query.")
+            return
+        
+        if self.multimodal_engine.index is None:
+            QtWidgets.QMessageBox.critical(self, "Error", "Multimodal index not loaded. Please run indexing first.")
+            return
+
+        self.progress_bar.setValue(50)
+        raw_results = self.multimodal_engine.search_text_to_image(query, k=16)
+        
+        # Clear results grid
+        for i in reversed(range(self.results_grid.count())): 
+            self.results_grid.itemAt(i).widget().setParent(None)
+            
+        for i, res in enumerate(raw_results):
+            img_label = QLabel()
+            pixmap = QtGui.QPixmap(res['path'])
+            if not pixmap.isNull():
+                img_label.setPixmap(pixmap.scaled(120, 120, QtCore.Qt.KeepAspectRatio))
+                img_label.setToolTip(f"Score: {res['score']:.4f}")
+            self.results_grid.addWidget(img_label, i // 4, i % 4)
+            
+        self.progress_bar.setValue(100)
+
 
     def auto_load_images(self):
         # Default dataset path

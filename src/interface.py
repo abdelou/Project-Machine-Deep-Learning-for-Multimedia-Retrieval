@@ -59,7 +59,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setWindowTitle("Image Retrieval System")
-        MainWindow.setWindowIcon(QtGui.QIcon("icon.png"))
+        # MainWindow.setWindowIcon(QtGui.QIcon("icon.png")) # Removed to prevent crash
         self.mainWindow = MainWindow
 
         screen = QtWidgets.QApplication.primaryScreen().size()
@@ -817,7 +817,7 @@ class SelectionDialog(QDialog):
     def __init__(self, options, title, parent=None, multi_selection=False):
         super(SelectionDialog, self).__init__(parent)
         self.setWindowTitle(title)
-        self.setWindowIcon(QtGui.QIcon("icon.png"))
+        # self.setWindowIcon(QtGui.QIcon("icon.png")) # Removed
         screen = QApplication.primaryScreen().size()
         width_ratio = screen.width() / 1920
         height_ratio = screen.height() / 1080

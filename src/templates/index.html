@@ -215,19 +215,25 @@
     
                 <fieldset class="search-box">
                     <legend>Search</legend>
-                    <div class="search-controls">
-                        <button type="button">Load descriptors</button>
-                        <label>Distance :</label>
-                        <select name="distance">
-                            <option value="Euclidienne">Euclidienne</option>
-                            <option value="Chicarre">Chi-square</option>
-                            <option value="Bhattacharyya">Bhattacharyya</option>
-                            <option value="Flann">Flann</option>
-                            <option value="Brute force">Brute force</option>
-                            <option value="Intersection">Intersection</option>
-                            <option value="Correlation">Correlation</option>
-                        </select>
-                        <button type="submit">Search</button>
+                    <div class="search-controls" style="flex-wrap: wrap;">
+                        <div style="width: 100%; display: flex; gap: 10px; margin-bottom: 5px;">
+                            <button type="button" style="flex: 1;">Load descriptors</button>
+                            <label>Distance :</label>
+                            <select name="distance" style="flex: 1;">
+                                <option value="Euclidienne">Euclidienne</option>
+                                <option value="Chicarre">Chi-square</option>
+                                <option value="Bhattacharyya">Bhattacharyya</option>
+                                <option value="Flann">Flann</option>
+                                <option value="Brute force">Brute force</option>
+                                <option value="Intersection">Intersection</option>
+                                <option value="Correlation">Correlation</option>
+                            </select>
+                            <button type="submit" class="search-unimodal-btn">Search (Image)</button>
+                        </div>
+                        <div style="width: 100%; display: flex; gap: 10px;">
+                            <input type="text" id="multimodal-query" placeholder="Enter text query (e.g. 'voiture rouge')..." style="flex: 3; padding: 5px;">
+                            <button type="button" class="search-multimodal-btn" onclick="searchMultimodalText()" style="flex: 1;">Multimodal Search (Text)</button>
+                        </div>
                     </div>
                 </fieldset>
     
