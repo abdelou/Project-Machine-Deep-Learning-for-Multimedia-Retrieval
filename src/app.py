@@ -63,9 +63,12 @@ def generate_pr_curve_base64(retrieved_paths, query_path):
     plt.close()
     return img_base64
 
-# Paths
-DATA_DIR = os.path.abspath('data/dataset')
-FEATURES_DIR = os.path.abspath('extracted_features')
+# Paths relative to this script
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(APP_ROOT)
+DATA_DIR = os.path.join(PROJECT_ROOT, 'data', 'dataset')
+FEATURES_DIR = os.path.join(PROJECT_ROOT, 'extracted_features')
+
 MULTIMODAL_INDEX = os.path.join(FEATURES_DIR, 'multimodal/flickr8k_clip.index')
 MULTIMODAL_PATHS = os.path.join(FEATURES_DIR, 'multimodal/flickr8k_paths.npy')
 

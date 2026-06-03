@@ -298,6 +298,22 @@
         const results = document.getElementById('results');
         const prCurve = document.getElementById('pr-curve');
         const progress = document.getElementById('progress');
+        let progressInterval = null;
+
+        function startProgress() {
+            progress.value = 0;
+            if (progressInterval) clearInterval(progressInterval);
+            progressInterval = setInterval(() => {
+                if (progress.value < 90) {
+                    progress.value += Math.random() * 5;
+                }
+            }, 300);
+        }
+
+        function endProgress() {
+            if (progressInterval) clearInterval(progressInterval);
+            progress.value = 100;
+        }
 
         imageInput.onchange = (e) => {
             const file = e.target.files[0];
@@ -320,6 +336,7 @@
             }
 
             results.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px;">Searching...</div>';
+            startProgress();
 
             const formData = new FormData(form);
             const selectedDescs = Array.from(document.querySelectorAll('input[name="descriptor"]:checked')).map(cb => cb.value);
@@ -336,6 +353,7 @@
                 results.innerHTML = '';
                 if (data.error) {
                     results.innerHTML = `<div style="grid-column: 1/-1; color: red;">${data.error}</div>`;
+                    endProgress();
                     return;
                 }
 
@@ -349,9 +367,10 @@
                 if (data.pr_curve) {
                     lastPRData = data.pr_curve;
                 }
-                progress.value = 100;
+                endProgress();
             } catch (err) {
                 results.innerHTML = '<div style="grid-column: 1/-1;">Error searching.</div>';
+                endProgress();
             }
         };
 
@@ -372,7 +391,7 @@
             }
             
             results.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px;">Searching text...</div>';
-            progress.value = 50;
+            startProgress();
             
             const formData = new FormData();
             formData.append('query', query);
@@ -387,6 +406,7 @@
                 results.innerHTML = '';
                 if (data.error) {
                     results.innerHTML = `<div style="grid-column: 1/-1; color: red;">${data.error}</div>`;
+                    endProgress();
                     return;
                 }
                 
@@ -400,9 +420,10 @@
                 if (data.pr_curve) {
                     lastPRData = data.pr_curve;
                 }
-                progress.value = 100;
+                endProgress();
             } catch (err) {
                 results.innerHTML = '<div style="grid-column: 1/-1;">Error searching text.</div>';
+                endProgress();
             }
         }
 
