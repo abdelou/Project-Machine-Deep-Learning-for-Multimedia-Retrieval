@@ -155,10 +155,11 @@ def search_multimodal():
         return jsonify({"error": "Multimodal index not loaded. Please run indexing first."}), 404
 
     # Text-to-Image search
+    k = 20
     results = multimodal_engine.search_text_to_image(query, k=k)
     
     # Compute R/P Curve for Multimodal
-    from metrics import extract_class_id, create_plot
+    from retrieval import extract_class_id
     import numpy as np
     
     # Auto-detect class (mode of top 10 results)
@@ -173,8 +174,7 @@ def search_multimodal():
             
             # Compute plot
             retrieved_classes = [extract_class_id(res['path']) for res in results]
-            buf = create_plot(len(results), retrieved_classes, [dominant_class], relevant_items)
-            pr_curve_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
+            pr_curve_base64 = create_plot(len(results), retrieved_classes, [dominant_class], relevant_items)
             
             # Format results for front-end
             formatted_results = []
