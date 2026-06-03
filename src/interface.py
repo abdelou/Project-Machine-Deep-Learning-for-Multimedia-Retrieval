@@ -605,13 +605,13 @@ class Ui_MainWindow(object):
                     x_brand = liste_x_y[2]
                     y_brand = liste_x_y[3]
                     self.clear_vertical_layout_plot()
-                    sc = MplCanvas(self.scrollPlotContents, width=5, height=2, dpi=50)
+                    sc = MplCanvas(self.scrollPlotContents, width=10, height=8, dpi=100)
                     sc.axes.plot(x_brand_model, y_brand_model, label="Brand + Model")
                     sc.axes.set_xlabel('Rappel (%)')
                     sc.axes.set_ylabel('Précision (%)')
                     sc.axes.set_title('Courbe Précision-Rappel (Marque + Modèle)')
                     self.verticalLayoutPlot.addWidget(sc)
-                    sc_brand_only = MplCanvas(self.scrollPlotContents, width=5, height=2, dpi=50)
+                    sc_brand_only = MplCanvas(self.scrollPlotContents, width=10, height=8, dpi=100)
                     sc_brand_only.axes.plot(x_brand, y_brand, label="Brand")
                     sc_brand_only.axes.set_xlabel('Rappel (%)')
                     sc_brand_only.axes.set_ylabel('Précision (%)')
@@ -700,6 +700,7 @@ class SearchThread(QtCore.QThread):
         plots = {}
         for i, descriptor in enumerate(self.image_request_descriptors.keys()) :
             n_voisins = getkVoisins(self.features[descriptor], self.image_request_descriptors[descriptor], maximum, self.distance_name)
+            print(f"\n[EVALUATION] Descripteur: {descriptor}")
             param = [self.k, 50, 100, relevant_items]
             param = [p for p in param if p <= maximum]
             
@@ -710,6 +711,7 @@ class SearchThread(QtCore.QThread):
                 r_p = r_precision(k=k, retrieved_classes=retrieved_classes, relevant_class=[request_class])
                 ap = average_precision(k=k, retrieved_classes=retrieved_classes, relevant_class=[request_class])
                 df = pd.concat([df, pd.DataFrame({"Feature_Extractor": descriptor, "k": k, "brand_only": False, "Recall@k": r, "R-precision": r_p, "Average precision@k": ap}, index=[0])])
+                print(f"  > (Brand+Model) k={k:3}: Rappel = {r:.3f}, Précision = {r_p:.3f}, AP = {ap:.3f}")
 
             #Calcul la courve PR brand+model
             x_brand_model, y_brand_model = create_plot_pyqt(k=relevant_items, retrieved_classes=retrieved_classes, relevant_class=[request_class], relevant_items=relevant_items)

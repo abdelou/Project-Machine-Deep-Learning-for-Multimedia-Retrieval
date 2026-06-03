@@ -8,7 +8,6 @@ from metrics import *
 from torchvision import transforms
 
 from feature_extractor import *
-from utils import *
 from retrieval import *
 
 def evaluate_retrieval(feature_extractor, data_dir, output_dir, distanceName="Euclidienne", df_global=pd.DataFrame(columns=["Feature_Extractor", "Distance", "k", "brand_only", "MAP"]), df_requests=pd.DataFrame(columns=["Feature_Extractor", "Request", "k", "brand_only", "Recall@k", "R-precision", "Average precision@k"]), plot_curves=False):
@@ -57,8 +56,8 @@ def evaluate_retrieval(feature_extractor, data_dir, output_dir, distanceName="Eu
                 k = relevant_items
             r = recall(k, retrieved_classes, [request_class], relevant_items)
             r_p = r_precision(k, retrieved_classes, [request_class])
-            print(f"    - R@50={r:.3f}, P@50={r_p:.3f}, AP@50={ap:.3f}")
             ap = average_precision(k, retrieved_classes, [request_class])
+            print(f"    - R@{k}={r:.3f}, P@{k}={r_p:.3f}, AP@{k}={ap:.3f}")
             df_requests = pd.concat([df_requests, pd.DataFrame({"Feature_Extractor": [feature_extractor.name], "Request": [request_images[img_idx]], "k": [k], "brand_only": [False], "Recall@k": [r], "R-precision": [r_p], "Average precision@k": [ap]})])
 
         if plot_curves:
@@ -175,7 +174,9 @@ if __name__ == "__main__":
     }"""
 
     benchmark = { 
-        ResNet34_ImageNet_Extractor(): "Euclidienne"
+        Histogram_HSV_Extractor(): "Euclidienne", 
+        SIFT_Extractor(): "Flann",
+        ViT_Extractor(): "Euclidienne"
     }  
     
     #Performance evaluation

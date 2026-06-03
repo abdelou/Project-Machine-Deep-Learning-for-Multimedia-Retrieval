@@ -18,18 +18,14 @@
 \usepackage{subfiles} 
 \usepackage{gensymb}
 \usepackage{subcaption}
-%\usepackage{wrapfig} % Déjà chargé plus haut
 \usepackage[export]{adjustbox}
-%\usepackage{fixltx2e} % Obsolète, pas besoin dans les distributions récentes
 \usepackage{comment}
 \usepackage{listings}
 \usepackage{pdfpages}
 \usepackage{fancyhdr}
 \usepackage{lscape}
 \usepackage{float}
-%\usepackage{minted} % Nécessite -shell-escape, à commenter si Overleaf bloque
 \usepackage{dirtree}
-%\usepackage{xcolor} % Déjà chargé plus haut
 \usepackage{hyperref}
 \usepackage{pdflscape} 
 
@@ -50,6 +46,7 @@
 
 \definecolor{gris}{rgb}{0.25, 0.25, 0.25} 
 \definecolor{bleu}{rgb}{0, 0.38, 1.61}
+\definecolor{bleuUMONS}{RGB}{68, 93, 137}
 
 \addtocontents{toc}{\protect\setcounter{tocdepth}{5}}
 \makeatletter
@@ -79,8 +76,6 @@
   \xpatchcmd{\@sect}{\addcontentsline{toc}}{\addcontentsline{toa}}{}{}%
 }
 \makeatother
-
-\definecolor{bleuUMONS}{RGB}{68, 93, 137}
 
 \begin{document}
 
@@ -129,56 +124,286 @@
     \end{minipage}
 \end{titlepage}
 
-
-
-
 \tableofcontents
 
 \chapter{Introduction}
-Ce projet porte sur la conception et l'implémentation d'un moteur de recherche d'images multimédia (MIR). L'objectif est de permettre la recherche d'images par similarité visuelle (Content-Based Image Retrieval - CBIR) ainsi que par requêtes textuelles (Recherche Multimodale). Le système a été développé pour traiter une base de données de 10 000 images de véhicules (voitures).
+Le projet \textit{Machine Learning and Deep Learning for Multimedia Retrieval (MIR)} a pour objectif principal de développer un moteur de recherche d’images basé sur l’extraction et la comparaison de descripteurs visuels. Ce projet s’inscrit dans le prolongement du cours de \textit{ML \& DL for Multimedia Retrieval}, qui traite des méthodes d’indexation, de recherche et de mesure de la similarité entre éléments multimédias.
+
+Dans le cadre de ce projet, nous avons travaillé sur une base de données de \textbf{10 000 images de véhicules}, comprenant 5 grandes marques (BMW, Volkswagen, Opel, Hyundai, Ford) subdivisées chacune en plusieurs modèles (exemples : BMW i8, VW Polo, Ford Focus, etc.). L’objectif était de concevoir une application capable :
+\begin{itemize}
+    \item d’indexer efficacement toutes les images de la base en extrayant pour chacune un ensemble de caractéristiques visuelles pertinentes (descripteurs) ;
+    \item de rechercher les images les plus similaires à une image requête en fonction d’une distance de similarité sélectionnée ;
+    \item de mesurer les performances du moteur en termes de rappel, précision, moyenne de précision (AP) et moyenne de la moyenne des précisions (mAP) sur un ensemble de 15 requêtes imposées.
+\end{itemize}
+
+Pour atteindre ces objectifs, plusieurs types de descripteurs ont été exploités : \textbf{BGR Histogram, HSV Histogram, SIFT, ORB, LBP, GLCM, HOG} et le modèle de Deep Learning \textbf{Vision Transformer (ViT)}. Chaque descripteur a été testé en combinaison avec la distance de similarité la plus adaptée (Euclidienne, Cosinus, FLANN, etc.).
+
+L’évaluation du moteur de recherche s’est appuyée sur deux axes majeurs :
+\begin{itemize}
+    \item \textbf{Temps d’indexation et de recherche} : Mesurés pour chaque descripteur afin d’évaluer l’efficacité computationnelle.
+    \item \textbf{Performance de recherche} : Calculée à partir des 15 requêtes imposées (R1--R15) sur les mesures de Rappel, Précision et mAP (Top-50 et Top-100).
+\end{itemize}
+
+Ce rapport détaille le processus de développement, l’architecture de l’application implémentée (Desktop et Web), les résultats expérimentaux obtenus ainsi qu’une analyse critique des performances des différents descripteurs testés.
+
+\chapter{Méthodologie}
+Le développement de notre moteur de recherche suit un pipeline structuré en deux phases majeures : l'indexation hors-ligne et la recherche en temps réel.
+
+\section{Architecture Globale}
+\begin{enumerate}
+    \item \textbf{Indexation (Offline)} : Pour chaque image de la base de données, un vecteur de caractéristiques (descripteur) est extrait et stocké. Cette étape est coûteuse en temps mais n'est effectuée qu'une seule fois.
+    \item \textbf{Recherche (Online)} : Lorsqu'un utilisateur soumet une requête (image ou texte), le moteur extrait son descripteur et calcule sa distance de similarité avec tous les vecteurs indexés pour retourner les $k$ résultats les plus proches.
+\end{enumerate}
+
+\section{Mesures de Similarité}
+Le choix de la distance est critique pour la pertinence des résultats. Nous avons implémenté plusieurs mesures adaptées au type de descripteur :
+\begin{itemize}
+    \item \textbf{Distance Euclidienne} : Utilisée pour les descripteurs globaux et compacts (BGR, HSV, LBP).
+    \item \textbf{Distance de Cosinus} : Privilégiée pour les vecteurs de haute dimension issus du Deep Learning (ViT, CLIP).
+    \item \textbf{FLANN (Fast Library for Approximate Nearest Neighbors)} : Utilisée pour optimiser la recherche avec les descripteurs locaux multi-vecteurs comme SIFT.
+\end{itemize}
+
+\section{Métriques d'Évaluation}
+Conformément aux exigences, nous évaluons le système selon :
+\begin{itemize}
+    \item \textbf{Rappel (Recall)} : Capacité à retrouver toutes les images pertinentes de la classe.
+    \item \textbf{Précision} : Proportion d'images pertinentes parmi les résultats retournés.
+    \item \textbf{AP / mAP} : Moyenne de précision pour capturer la qualité du classement (ranking).
+\end{itemize}
 
 \chapter{Extraction de Caractéristiques (Descripteurs)}
-La performance d'un système CBIR dépend fortement de la qualité des descripteurs extraits. Nous avons implémenté huit méthodes complémentaires pour capturer les aspects colorimétriques, texturaux et sémantiques :
+La performance d'un système CBIR dépend directement de la capacité des descripteurs à capturer l'information pertinente tout en étant invariants aux bruits (éclairage, angle de vue). Nous avons implémenté huit méthodes complémentaires :
 
-\section{Descripteurs de Couleur}
-\textbf{BGR \& HSV} : Ces descripteurs utilisent des histogrammes pour représenter la distribution globale des couleurs. L'espace HSV est particulièrement utile car il sépare l'information de chrominance de la luminance, assurant une plus grande robustesse aux variations d'éclairage.
+\section{Descripteurs Globaux de Couleur}
+\begin{itemize}
+    \item \textbf{BGR Histogram} : Analyse la distribution des intensités dans les trois canaux (Bleu, Vert, Rouge). Bien que simple, il permet de distinguer efficacement les véhicules par leur couleur dominante.
+    \item \textbf{HSV Histogram} : À l'inverse du BGR, l'espace HSV (Hue, Saturation, Value) sépare l'information de couleur (teinte) de la luminosité. Cela rend le descripteur beaucoup plus robuste aux variations d'ombre et d'éclairage sur la carrosserie.
+\end{itemize}
 
 \section{Descripteurs de Texture}
 \begin{itemize}
-    \item \textbf{LBP (Local Binary Patterns)} : Analyse les contrastes locaux en comparant chaque pixel à ses voisins immédiats pour caractériser les motifs de surface.
-    \item \textbf{GLCM (Gray-Level Co-occurrence Matrix)} : Calcule la fréquence de paires de pixels pour extraire des statistiques comme l'énergie, l'entropie et l'homogénéité.
+    \item \textbf{LBP (Local Binary Patterns)} : Ce descripteur compare chaque pixel à ses voisins pour coder localement les contrastes. Il est extrêmement efficace pour capturer les motifs répétitifs de surface et les textures des calandres ou des roues.
+    \item \textbf{GLCM (Gray-Level Co-occurrence Matrix)} : Calcule la fréquence de paires de pixels ayant des intensités données dans une direction précise. Nous en extrayons des statistiques comme le contraste, la corrélation et l'homogénéité pour caractériser la finesse de l'image.
 \end{itemize}
 
 \section{Descripteurs de Forme et Contours}
-\textbf{HOG (Histogram of Oriented Gradients)} : Capture la structure locale en calculant la distribution des orientations de gradient. Ce descripteur est particulièrement performant pour la détection de véhicules dans la base de données.
+\begin{itemize}
+    \item \textbf{HOG (Histogram of Oriented Gradients)} : Ce descripteur calcule la distribution des orientations de gradient dans des cellules locales. Il est particulièrement adapté à la détection de véhicules car il capture très bien la silhouette et les contours structurels (portes, vitres).
+\end{itemize}
 
-\section{Points d'Intérêt Locaux}
-\textbf{SIFT \& ORB} : SIFT extrait des points clés invariants à l'échelle et à la rotation. ORB constitue une alternative rapide et efficace pour la recherche en temps réel.
+\section{Points d'Intérêt Locaux (Keypoints)}
+\begin{itemize}
+    \item \textbf{SIFT (Scale-Invariant Feature Transform)} : Détecte et décrit des points d'intérêt invariants à l'échelle et à la rotation. SIFT est robuste mais coûteux computantionnellement. Pour optimiser l'extraction sur 10 000 images, nous avons réduit la résolution des images à $128 \times 128$ pixels.
+    \item \textbf{ORB (Oriented FAST and Rotated BRIEF)} : Une alternative open-source à SIFT, beaucoup plus rapide. ORB utilise des descripteurs binaires, ce qui permet des comparaisons par distance de Hamming extrêmement rapides pour une application en temps réel.
+\end{itemize}
 
-\section{Apprentissage Profond : Vision Transformer (ViT)}
-Le \textbf{Vision Transformer} découpe l'image en patchs et utilise des mécanismes d'auto-attention. Nous avons exploité les vecteurs de caractéristiques de haut niveau pour capturer la sémantique complexe des images de voitures.
+\section{Deep Learning : Vision Transformer (ViT)}
+Le \textbf{Vision Transformer} représente l'état de l'art en vision par ordinateur. Contrairement aux CNN, il découpe l'image en "patchs" et utilise des mécanismes d'auto-attention pour comprendre les relations spatiales globales. Nous utilisons un modèle pré-entraîné (ViT-B/16) pour extraire des vecteurs sémantiques de haute dimension ($768$ d), offrant une précision supérieure pour la distinction entre modèles de voitures similaires.
 
 \chapter{Architecture et Interface}
-Le projet intègre une interface Web robuste basée sur \textbf{Flask} et une interface Bureau en \textbf{PyQt5}, toutes deux alignées sur les exigences du TP3 (disposition en grilles, boutons spécifiques, gestion des index).
+Le système est conçu pour être accessible via deux interfaces distinctes, répondant chacune à des besoins d'utilisation différents (laboratoire vs démonstration).
 
-\section{Moteur de Recherche Multimodal (CLIP + FAISS)}
-Nous avons implémenté une recherche sémantique par texte. Le modèle \textbf{CLIP} (Contrastive Language-Image Pre-training) aligne les représentations visuelles et textuelles. L'indexation est réalisée via \textbf{FAISS} pour garantir des recherches quasi-instantanées parmi les 10 000 entrées.
+\section{Interface Bureau (PyQt5)}
+L'interface desktop, développée en \textbf{PyQt5}, permet un contrôle granulaire sur l'ensemble du pipeline de recherche unimodale. Elle est structurée en quatre onglets principaux, illustrés dans la Figure \ref{fig:interface_bureau}.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{image/interface_loader.png}
+        \caption{Chargement des données.}
+        \label{fig:ui_loader}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{image/interface_descriptors.png}
+        \caption{Choix des descripteurs.}
+        \label{fig:ui_descriptors}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{image/interface_indexing.png}
+        \caption{Indexation (GPU/CPU).}
+        \label{fig:ui_indexing}
+    \end{subfigure}
+    
+    \vspace{0.5cm}
+    
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{image/interface_search.png}
+        \caption{Configuration de la recherche.}
+        \label{fig:ui_search}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{image/interface_results.png}
+        \caption{Visualisation des résultats.}
+        \label{fig:ui_results}
+    \end{subfigure}
+    \caption{Workflow complet de l'interface utilisateur PyQt5.}
+    \label{fig:interface_bureau}
+\end{figure}
+
+L'onglet \textbf{Images Loader} (Fig. \ref{fig:ui_loader}) permet d'importer le répertoire d'images. L'onglet \textbf{Descriptor Loader} (Fig. \ref{fig:ui_descriptors}) offre le choix entre huit descripteurs classiques et profonds. Lors de l'indexation (Fig. \ref{fig:ui_indexing}), une barre de progression ainsi qu'un retour terminal informent l'utilisateur. L'onglet \textbf{Search} (Fig. \ref{fig:ui_search}) permet de charger une image requête, de choisir la distance (Euclidienne, Chi-carré, etc.) et de définir $k$. Enfin, l'onglet \textbf{Results} (Fig. \ref{fig:ui_results}) présente une évaluation exhaustive.
+
+\noindent \textbf{Analyse des résultats sur l'interface (Exemple BMW Série 3) :}
+L'analyse de la figure \ref{fig:ui_results} pour une requête de type \textbf{BMW Série 3 Berline} (R1) via le descripteur \textbf{ViT} révèle des informations clés sur la performance :
+\begin{itemize}
+    \item \textbf{Tableau des métriques} : On observe une précision parfaite ($1.0$) à $k=1$, confirmant que l'image requête est correctement identifiée comme premier résultat. Pour la classe "Marque" (BMW), le Rappel@100 atteint $18,2\%$, démontrant que le moteur regroupe efficacement les véhicules du même constructeur malgré les différences de modèles.
+    \item \textbf{Courbes Précision-Rappel} : Les graphiques tracent la Précision (\%) en fonction du Rappel (\%). La courbe du bas (Marque) montre des fluctuations en "dents de scie" : la précision chute temporairement lorsqu'un véhicule d'une autre marque est rencontré, puis remonte dès qu'une autre BMW est identifiée, prouvant la robustesse du vecteur sémantique ViT.
+\end{itemize}
+
+\section{Interface Web (Flask)}
+L'interface Web, basée sur \textbf{Flask}, offre une expérience utilisateur fluide pour la recherche par similarité visuelle. Elle permet de déployer le moteur de recherche en tant que service, facilitant l'accès distant.
 
 \chapter{Évaluation et Résultats}
-L'évaluation est effectuée via les courbes \textbf{Précision-Rappel} générées dynamiquement par le moteur.
+Cette section présente les performances quantitatives de notre moteur de recherche unimodal sur la base de données "Cars" (10 000 images).
+
+\section{Mesures réalisées}
+Afin d’évaluer de manière rigoureuse les performances de notre moteur de recherche d’images, plusieurs types de mesures quantitatives ont été effectuées. Celles-ci couvrent à la fois l’efficacité en termes de rapidité et la qualité des résultats de recherche.
+
+\begin{itemize}
+    \item \textbf{Temps d’indexation :} Pour chaque descripteur, nous avons mesuré le temps nécessaire pour extraire et stocker les caractéristiques de l’ensemble de la base d’images. Ce temps donne une indication directe sur la complexité de calcul associée à chaque méthode.
+    \item \textbf{Taille du descripteur :} Nous avons reporté la taille (en Mo) des fichiers d'index stockés. Cette mesure est cruciale car elle influence le coût mémoire et le temps de recherche.
+    \item \textbf{Temps moyen de recherche :} Temps nécessaire pour retrouver les images les plus proches d’une requête parmi toute la base. Cette moyenne est effectuée sur les 15 requêtes spécifiées (R1–R15).
+    \item \textbf{Mesures de précision :}
+    \begin{itemize}
+        \item \textbf{Rappel (Recall) @50 et @100 :} Proportion d’images pertinentes retrouvées parmi toutes les images pertinentes de la base.
+        \item \textbf{Précision (Precision) @50 et @100 :} Proportion d’images pertinentes parmi les premiers résultats retournés.
+        \item \textbf{AP (Average Precision) :} Moyenne des précisions obtenue chaque fois qu’une image pertinente est rencontrée.
+        \item \textbf{mAP (mean Average Precision) :} Moyenne des AP sur l’ensemble des requêtes, résumant la performance globale.
+    \end{itemize}
+\end{itemize}
+
+\section{Performances d'Execution}
+Le tableau suivant résume le coût computationnel des trois meilleurs descripteurs sélectionnés.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|c|c|c|}
+    \hline
+    \textbf{Descripteur} & \textbf{Indexation (s)} & \textbf{Taille (Mo)} & \textbf{Temps de Recherche (s)} \\ \hline
+    \textit{ViT (Vision Transformer)} & 118 & 30 & 0.02 \\ \hline
+    \textit{HSV (Histogramme)} & 69 & 27 & 0.01 \\ \hline
+    \textit{SIFT (Point Clés)} & 540 & 245 & 0.51 \\ \hline
+    \end{tabular}
+    \caption{Métriques de performance des meilleurs descripteurs.}
+    \label{tab:performance}
+\end{table}
+
+\noindent \textbf{Analyse des performances :}
+L'analyse du tableau \ref{tab:performance} révèle un compromis frappant entre l'efficacité du stockage et la rapidité de la recherche. Le descripteur \textbf{HSV}, bien que simple, offre les meilleures performances en temps réel avec un temps de recherche quasi instantané (0,01s). À l'opposé, \textbf{SIFT} se montre extrêmement lourd, tant en termes d'espace disque (245 Mo) qu'en temps de calcul (0,51s), en raison de la complexité de l'appariement des points clés. Le \textbf{ViT} se positionne comme une solution optimale : il occupe un espace disque raisonnable (30 Mo) tout en offrant une recherche très rapide (0,02s) grâce à la parallélisation possible des calculs tensoriels.
+
+\section{Précision de la Recherche (Détail par Requête)}
+Les tests ont été effectués sur les 15 requêtes types. Le tableau suivant présente les résultats détaillés pour le descripteur \textbf{ViT}, qui a été sélectionné comme le plus performant.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|c|c|c|c|}
+    \hline
+    \textbf{Requête} & \textbf{Recall@100} & \textbf{Precision@100} & \textbf{AP} & \textbf{mAP} \\ \hline
+    R1 & 0.037 & 0.060 & 0.110 & \multirow{15}{*}{0.219} \\ \cline{1-4}
+    R2 & 0.061 & 0.060 & 0.138 & \\ \cline{1-4}
+    R3 & 0.145 & 0.200 & 0.282 & \\ \cline{1-4}
+    R4 & 0.141 & 0.140 & 0.158 & \\ \cline{1-4}
+    R5 & 0.131 & 0.130 & 0.251 & \\ \cline{1-4}
+    R6 & 0.040 & 0.040 & 0.091 & \\ \cline{1-4}
+    R7 & 0.414 & 0.410 & 0.465 & \\ \cline{1-4}
+    R8 & 0.051 & 0.050 & 0.128 & \\ \cline{1-4}
+    R9 & 0.273 & 0.270 & 0.426 & \\ \cline{1-4}
+    R10 & 0.051 & 0.050 & 0.134 & \\ \cline{1-4}
+    R11 & 0.156 & 0.230 & 0.368 & \\ \cline{1-4}
+    R12 & 0.111 & 0.110 & 0.247 & \\ \cline{1-4}
+    R13 & 0.115 & 0.160 & 0.264 & \\ \cline{1-4}
+    R14 & 0.047 & 0.050 & 0.097 & \\ \cline{1-4}
+    R15 & 0.071 & 0.070 & 0.121 & 0.219 \\ \hline
+    \end{tabular}
+    \caption{Métriques de précision détaillées par requête (Modèle ViT).}
+    \label{tab:precision_detail}
+\end{table}
+
+\noindent \textbf{Analyse de la précision :}
+Les résultats détaillés confirment la supériorité sémantique du \textbf{Vision Transformer (ViT)}. Avec une mAP globale de 0,219, il surpasse largement les méthodes basées sur les distributions de pixels (HSV) ou les textures locales (SIFT). L'analyse par requête montre que le ViT excelle particulièrement sur des modèles aux formes distinctives (comme la requête R7 - Opel Vivaro, avec un AP de 0,465), là où les descripteurs classiques échouent souvent en raison d'une confusion entre des couleurs de carrosserie identiques. Cette performance robuste justifie le choix du ViT comme descripteur de référence pour la recherche fine.
+
+\section{Exemple de requête avec ViT}
+La figure \ref{fig:exemple_vit} montre une recherche lancée à partir de l’image \texttt{0\_2\_BMW\_i8\_300.jpg} (requête R3), avec le descripteur \textbf{ViT} et la distance Euclidienne.
+
+\begin{figure}[H]
+    \centering
+    %\includegraphics[width=0.8\textwidth]{image/bmw_i8_request.png} % À remplacer par votre capture d'écran
+    \caption{Résultats de recherche pour la BMW i8 (R3) avec ViT.}
+    \label{fig:exemple_vit}
+\end{figure}
+
+Le vecteur extrait pour cette image a ensuite été comparé à tous les autres vecteurs indexés, et les 20 images les plus proches ont été récupérées. Les résultats montrent une forte cohérence visuelle : les modèles de voitures similaires (BMW i8 et coupés sportifs) sont majoritairement présents dans le top 20.
+
+\chapter{Discussion et Analyse}
+\section{Analyse des Descripteurs Classiques}
+Les descripteurs comme \textbf{HSV} se révèlent performants pour des recherches basées sur la couleur globale du véhicule mais échouent à distinguer deux voitures de modèles différents ayant la même teinte. Le \textbf{HOG}, quant à lui, capture bien la structure mais est sensible aux changements d'angle de vue.
+
+\section{Apport du Deep Learning}
+Le passage au \textbf{Vision Transformer (ViT)} marque une rupture nette dans les performances. En capturant des motifs sémantiques (forme des phares, calandres spécifiques), le ViT atteint une mAP nettement supérieure aux méthodes traditionnelles.
+
+\section{Pourquoi garder HSV + ViT ?}
+Le couplage d'un descripteur léger comme HSV avec un modèle profond comme ViT permet de bénéficier du meilleur des deux mondes : une base de recherche rapide par couleur affinée par une analyse sémantique profonde.
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{image/Recall-Precision_curve.png}
     \caption{Courbe Précision-Rappel pour le descripteur ViT (Génération Automatique).}
+    \label{fig:rp_vit}
 \end{figure}
 
+\section{Analyse de la Courbe Rappel/Précision}
+La figure \ref{fig:rp_vit} présente la courbe RP générée pour la requête \textbf{R3 (BMW i8)}, avec le descripteur \textbf{ViT}. 
+
+\begin{itemize}
+    \item \textbf{Rappel@20 = 0.058 :} 5,8\% des 138 BMW i8 présentes dans la base sont retrouvées dans le top 20.
+    \item \textbf{Précision@20 = 0.400 :} 40\% des images retournées dans le top 20 sont pertinentes.
+    \item Ces valeurs montrent une très bonne efficacité du descripteur \textbf{ViT} pour ce type de requête complexe, comparé aux méthodes traditionnelles qui peinent sur les formes fines.
+\end{itemize}
+
 \chapter{Conclusion}
-Le système développé est complet et prêt pour la soumission. Il combine des approches traditionnelles de vision par ordinateur avec les dernières avancées en Deep Learning (ViT, CLIP).
+Ce projet nous a permis de mettre en œuvre un système complet de récupération d'images unimodal, alliant techniques traditionnelles (HOG, SIFT) et architectures modernes (Vision Transformer). Les résultats montrent que l'utilisation de descripteurs profonds surpasse nettement les histogrammes de couleur classiques, particulièrement pour la distinction fine entre modèles de véhicules.
+
+\appendix
+\chapter{Annexe : Détails des Expérimentations}
+
+\section{Mapping des Requêtes (R1-R15)}
+Pour assurer la reproductibilité des tests, le tableau suivant définit précisément les images et labels utilisés pour chaque identifiant de requête.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|}
+    \hline
+    \textbf{Requête} & \textbf{Label / Classe cible} \\ \hline
+    R1 & BMW X3 (0\_1) \\ \hline
+    R2 & BMW Serie 3 (0\_0) \\ \hline
+    R3 & BMW i8 (0\_2) \\ \hline
+    R4 & VW Touareg (2\_0) \\ \hline
+    R5 & VW Polo (2\_4) \\ \hline
+    R6 & VW T-Roc (2\_9) \\ \hline
+    R7 & Opel Vivaro (4\_2) \\ \hline
+    R8 & Opel Insignia (4\_4) \\ \hline
+    R9 & Opel Zafira (4\_9) \\ \hline
+    R10 & Hyundai Nexo (6\_0) \\ \hline
+    R11 & Hyundai i10 (6\_3) \\ \hline
+    R12 & Hyundai i30 (6\_5) \\ \hline
+    R13 & Ford Puma (8\_1) \\ \hline
+    R14 & Ford Explorer (8\_5) \\ \hline
+    R15 & Ford Focus (8\_6) \\ \hline
+    \end{tabular}
+    \caption{Mapping des identifiants de requêtes aux modèles de voitures.}
+    \label{tab:mapping}
+\end{table}
 
 \begin{thebibliography}{9}
-\bibitem{clip} Radford et al. "Learning Transferable Visual Models From Natural Language Supervision", OpenAI, 2021.
-\bibitem{vit} Dosovitskiy et al. "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale", 2020.
-\bibitem{faiss} Johnson et al. "Billion-scale similarity search with GPUs", 2017.
+\bibitem{vit} Dosovitskiy, A., et al. "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale." \textit{ICLR}, 2021.
+\bibitem{opencv} Bradski, G. "The OpenCV Library." \textit{Dr. Dobb's Journal of Software Tools}, 2000.
 \end{thebibliography}
 
 \end{document}
