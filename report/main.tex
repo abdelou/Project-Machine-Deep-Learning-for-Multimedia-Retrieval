@@ -144,7 +144,7 @@ L’évaluation du moteur de recherche s’est appuyée sur deux axes majeurs :
     \item \textbf{Performance de recherche} : Calculée à partir des 15 requêtes imposées (R1--R15) sur les mesures de Rappel, Précision et mAP (Top-50 et Top-100).
 \end{itemize}
 
-Ce rapport détaille le processus de développement, l’architecture de l’application implémentée (Desktop et Web), les résultats expérimentaux obtenus ainsi qu’une analyse critique des performances des différents descripteurs testés.
+Ce rapport détaille le processus de développement, l’architecture de l’application implémentée (Desktop et Web), les résultats expérimentaux obtenus ainsi qu’une analyse critique des performances des différents descripteurs testés. Enfin, l'ensemble du code source est accessible sur GitHub : \url{https://github.com/abdelou/Project-Machine-Deep-Learning-for-Multimedia-Retrieval.git}.
 
 \chapter{Méthodologie}
 Le développement de notre moteur de recherche suit un pipeline structuré en deux phases majeures : l'indexation hors-ligne et la recherche en temps réel.
@@ -400,6 +400,43 @@ Pour assurer la reproductibilité des tests, le tableau suivant définit précis
     \caption{Mapping des identifiants de requêtes aux modèles de voitures.}
     \label{tab:mapping}
 \end{table}
+
+\chapter{Annexe : Manuel d'Utilisation}
+
+Le code source complet et versionné de ce projet est hébergé sur le dépôt GitHub suivant : \url{https://github.com/abdelou/Project-Machine-Deep-Learning-for-Multimedia-Retrieval.git}. Ce manuel décrit les étapes nécessaires pour installer et exécuter les deux interfaces du moteur de recherche d'images (Desktop et Web).
+
+\section{Pré-requis système}
+\begin{itemize}
+    \item \textbf{Langage} : Python 3.8 ou supérieur.
+    \item \textbf{Gestionnaire de paquets} : \texttt{pip} mis à jour.
+    \item \textbf{Environnement virtuel} (Recommandé) : \texttt{venv} ou \texttt{conda}.
+\end{itemize}
+
+\section{Installation des dépendances}
+Avant de lancer les interfaces, installez les bibliothèques requises en exécutant la commande suivante à la racine du projet :
+\begin{lstlisting}[language=bash]
+pip install PyQt5 qdarkstyle flask opencv-python torch timm torchvision pillow pandas scikit-image "numpy<2"
+\end{lstlisting}
+\textit{Note : La version de NumPy doit être inférieure à 2.0 pour assurer la compatibilité avec PyTorch.}
+
+\section{Lancement de l'Interface Bureau (PyQt5)}
+L'interface desktop est l'outil principal pour l'indexation et l'analyse détaillée.
+\begin{enumerate}
+    \item Ouvrez un terminal dans le dossier racine du projet.
+    \item Exécutez la commande : \texttt{python src/interface.py}.
+    \item Choisissez le style \textbf{QDarkStyle} dans la fenêtre de sélection.
+    \item Utilisez l'onglet \textbf{Images loader} pour charger le dossier \texttt{data/dataset}.
+    \item Dans l'onglet \textbf{Descriptor loader}, sélectionnez les descripteurs souhaités (ex: ViT) et cliquez sur \textbf{Load} pour lancer l'indexation ou charger les fichiers existants.
+\end{enumerate}
+
+\section{Lancement de l'Interface Web (Flask)}
+L'interface web offre une expérience de recherche simplifiée via un navigateur.
+\begin{enumerate}
+    \item Ouvrez un terminal à la racine du projet.
+    \item Exécutez la commande : \texttt{python src/app.py} (ou \texttt{python app.py} selon votre structure).
+    \item Une fois le serveur lancé, ouvrez votre navigateur à l'adresse : \texttt{http://127.0.0.1:5000}.
+    \item Téléversez une image requête pour obtenir les résultats visuels instantanés.
+\end{enumerate}
 
 \begin{thebibliography}{9}
 \bibitem{vit} Dosovitskiy, A., et al. "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale." \textit{ICLR}, 2021.
