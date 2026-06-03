@@ -155,13 +155,50 @@ def search_multimodal():
         return jsonify({"error": "Multimodal index not loaded. Please run indexing first."}), 404
 
     # Text-to-Image search
-    raw_results = multimodal_engine.search_text_to_image(query, k=16)
+    results = multimodal_engine.search_text_to_image(query, k=k)
     
-    # Format results for front-end
-    results = []
-    for res in raw_results:
+    # Compute R/P Curve for Multimodal
+    from metrics import extract_class_id, create_plot
+    import numpy as np
+    
+    # Auto-detect class (mode of top 10 results)
+    try:
+        top_classes = [extract_class_id(res['path']) for res in results[:10]]
+        if top_classes:
+            dominant_class = max(set(top_classes), key=top_classes.count)
+            # Find all relevant items in dataset for this class
+            DATASET_DIR = os.path.join('data', 'dataset')
+            all_images = [f for f in os.listdir(DATASET_DIR) if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
+            relevant_items = len([f for f in all_images if extract_class_id(f) == dominant_class])
+            
+            # Compute plot
+            retrieved_classes = [extract_class_id(res['path']) for res in results]
+            buf = create_plot(len(results), retrieved_classes, [dominant_class], relevant_items)
+            pr_curve_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
+            
+            # Format results for front-end
+            formatted_results = []
+            for res in results:
+                rel_path = os.path.basename(res['path'])
+                formatted_results.append({
+                    "path": f"/images/{rel_path}",
+                    "score": res['score']
+                })
+            
+            # Add to response
+            response_data = {
+                "results": formatted_results,
+                "pr_curve": pr_curve_base64
+            }
+            return jsonify(response_data)
+    except Exception as e:
+        print(f"Error computing multimodal PR: {e}")
+
+    # Fallback if PR fails
+    formatted_results = []
+    for res in results:
         rel_path = os.path.basename(res['path'])
-        results.append({
+        formatted_results.append({
             "path": f"/images/{rel_path}",
             "score": res['score']
         })
