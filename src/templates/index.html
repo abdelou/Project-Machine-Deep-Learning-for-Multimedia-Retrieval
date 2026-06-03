@@ -284,7 +284,7 @@
             <div class="footer">
                 <label>ProgressBar</label>
                 <progress value="0" max="100" id="progress"></progress>
-                <span>0%</span>
+                <span id="progress-text">0%</span>
                 <button type="button" class="quit-btn" onclick="window.close()">Quit</button>
             </div>
         </form>
@@ -298,14 +298,17 @@
         const results = document.getElementById('results');
         const prCurve = document.getElementById('pr-curve');
         const progress = document.getElementById('progress');
+        const progressText = document.getElementById('progress-text');
         let progressInterval = null;
 
         function startProgress() {
             progress.value = 0;
+            progressText.innerText = '0%';
             if (progressInterval) clearInterval(progressInterval);
             progressInterval = setInterval(() => {
                 if (progress.value < 90) {
                     progress.value += Math.random() * 5;
+                    progressText.innerText = Math.round(progress.value) + '%';
                 }
             }, 300);
         }
@@ -313,6 +316,7 @@
         function endProgress() {
             if (progressInterval) clearInterval(progressInterval);
             progress.value = 100;
+            progressText.innerText = '100%';
         }
 
         imageInput.onchange = (e) => {
