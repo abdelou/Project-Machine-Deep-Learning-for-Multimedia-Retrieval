@@ -241,8 +241,13 @@ class TP3MainWindow(QtWidgets.QMainWindow):
         QtWidgets.QMessageBox.information(self, "Success", "Descriptors loaded successfully.")
 
     def search(self):
+        # Smart Search: if no image but text query is present, fallback to multimodal
+        if not self.image_request_path and self.input_query.text().strip():
+            self.search_multimodal()
+            return
+            
         if not self.image_request_path:
-            QtWidgets.QMessageBox.warning(self, "Warning", "Please load a request image.")
+            QtWidgets.QMessageBox.warning(self, "Warning", "Please load a request image or enter a text query for multimodal search.")
             return
             
         if not self.features:

@@ -92,6 +92,18 @@
             font-weight: bold;
         }
 
+        .search-unimodal-btn {
+            background: #000080;
+            color: white;
+            border: 2px outset #0000df;
+        }
+
+        .search-multimodal-btn {
+            background: #004000;
+            color: white;
+            border: 2px outset #006000;
+        }
+
         button:active { border: 2px inset #fff; }
 
         .load-btn { width: 100px; height: 80px; }
@@ -231,8 +243,8 @@
                             <button type="submit" class="search-unimodal-btn">Search (Image)</button>
                         </div>
                         <div style="width: 100%; display: flex; gap: 10px;">
-                            <input type="text" id="multimodal-query" placeholder="Enter text query (e.g. 'voiture rouge')..." 
-                                   style="flex: 3; padding: 5px;"
+                            <input type="text" id="multimodal-query" placeholder="Type text here to search (e.g. 'voiture rouge')..." 
+                                   style="flex: 3; padding: 5px; border: 2px inset #fff;"
                                    onkeydown="if(event.key==='Enter'){ event.preventDefault(); searchMultimodalText(); }">
                             <button type="button" class="search-multimodal-btn" onclick="searchMultimodalText()" style="flex: 1;">Multimodal Search (Text)</button>
                         </div>
@@ -298,8 +310,16 @@
 
         form.onsubmit = async (e) => {
             e.preventDefault();
+            
+            const query = document.getElementById('multimodal-query').value;
+            const hasFile = imageInput.files.length > 0;
+            
+            if (!hasFile && query) {
+                searchMultimodalText();
+                return;
+            }
+
             results.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px;">Searching...</div>';
-            progress.value = 50;
 
             const formData = new FormData(form);
             const selectedDescs = Array.from(document.querySelectorAll('input[name="descriptor"]:checked')).map(cb => cb.value);
@@ -343,6 +363,44 @@
                 alert('Please run a search first to generate data.');
             }
         };
+
+        async function searchMultimodalText() {
+            const query = document.getElementById('multimodal-query').value;
+            if (!query) {
+                alert('Please enter a text query.');
+                return;
+            }
+            
+            results.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px;">Searching text...</div>';
+            progress.value = 50;
+            
+            const formData = new FormData();
+            formData.append('query', query);
+            
+            try {
+                const response = await fetch('/search_multimodal', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                
+                results.innerHTML = '';
+                if (data.error) {
+                    results.innerHTML = `<div style="grid-column: 1/-1; color: red;">${data.error}</div>`;
+                    return;
+                }
+                
+                data.forEach(res => {
+                    const div = document.createElement('div');
+                    div.className = 'result-item';
+                    div.innerHTML = `<img src="${res.path}" title="Score: ${res.score.toFixed(4)}" style="cursor:pointer" onclick="window.open(this.src)">`;
+                    results.appendChild(div);
+                });
+                progress.value = 100;
+            } catch (err) {
+                results.innerHTML = '<div style="grid-column: 1/-1;">Error searching text.</div>';
+            }
+        }
 
     </script>
 </body>
