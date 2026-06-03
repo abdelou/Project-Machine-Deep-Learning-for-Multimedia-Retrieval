@@ -74,7 +74,7 @@ pour tout nettoyer et lancer le projet d'un coup : lsof -ti :5001 | xargs kill -
 
 ```
 ---
-### 3. Interface Bureau (PyQt5)
+### 4. Interface Bureau (PyQt5)
 ```bash
 
 python src/interface.py
